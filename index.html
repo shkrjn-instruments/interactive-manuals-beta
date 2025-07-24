@@ -206,29 +206,10 @@
         }
 
         .duo-text {
-            position: fixed;
-            left: calc(50vw - 700px);
-            top: 80px;
-            max-width: 250px;
             font-size: 14px;
             line-height: 1.6;
             color: #ffffff;
             display: none;
-            /* Better mobile support */
-            z-index: 100;
-        }
-
-        /* Mobile-specific adjustments */
-        @media (max-width: 768px) {
-            .duo-text {
-                position: relative;
-                left: auto;
-                top: auto;
-                width: 90%;
-                max-width: none;
-                margin: 20px auto;
-                text-align: center;
-            }
         }
 
         .duo-text strong {
@@ -241,19 +222,21 @@
     
     <div class="main-container" id="mainContainer">
         <div class="text-column" id="leftText">
-            <p>Think of a sample and hold as an analog memory circuit.</p>
-            <p>There is a signal input, trigger input, and signal output. When a trigger is applied to the trigger input, the instantaneous level of the input voltage is relayed to the signal output.</p>
-            <p>This voltage is held until another trigger is received, which causes the process to repeat. A sample and hold is a great way to turn smooth and continuous modulation into stepwise modulation.</p>
-            <p>Click the <strong>smpl</strong> button and watch the purple output trace.</p>
-        </div>
-        
-        <div class="oscilloscope-section">
             <div class="duo-text" id="duoText">
                 <p>Duophonic Distribution combines two sample and holds and allows them to be triggered in an alternating manner.</p>
                 <p>This allows two distinct, but related, modulation sources to be derived from the same input signal. It can also be used to create true two voice polyphony by splitting a single pitch CV sequence between two oscillators.</p>
                 <p>Click the <strong>Duo</strong> button and watch the two output traces adjust in an alternating manner. To mimic this behavior IRL, apply a gate to the input of the Flip Flop style clock divider.</p>
             </div>
-
+            
+            <div class="single-mode-text">
+                <p>Think of a sample and hold as an analog memory circuit.</p>
+                <p>There is a signal input, trigger input, and signal output. When a trigger is applied to the trigger input, the instantaneous level of the input voltage is relayed to the signal output.</p>
+                <p>This voltage is held until another trigger is received, which causes the process to repeat. A sample and hold is a great way to turn smooth and continuous modulation into stepwise modulation.</p>
+                <p>Click the <strong>smpl</strong> button and watch the purple output trace.</p>
+            </div>
+        </div>
+        
+        <div class="oscilloscope-section">
             <div class="container">
                 <div class="labels" id="labelContainer">
                     <div class="label-input">input</div>
@@ -356,7 +339,7 @@
                 modeButton.textContent = 'Switch to Single Mode';
                 
                 // Hide single mode text, show duophonic text
-                document.getElementById('leftText').style.visibility = 'hidden';
+                document.querySelector('.single-mode-text').style.display = 'none';
                 document.getElementById('rightText').style.visibility = 'hidden';
                 document.getElementById('duoText').style.display = 'block';
                 
@@ -390,7 +373,7 @@
                 modeButton.textContent = 'Switch to Duophonic Mode';
                 
                 // Show single mode text, hide duophonic text
-                document.getElementById('leftText').style.visibility = 'visible';
+                document.querySelector('.single-mode-text').style.display = 'block';
                 document.getElementById('rightText').style.visibility = 'visible';
                 document.getElementById('duoText').style.display = 'none';
                 
