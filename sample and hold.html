@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample and Hold Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .main-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            margin-bottom: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .text-column {
+            flex: none;
+            width: 250px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ffffff;
+        }
+
+        .text-column strong {
+            font-weight: bold;
+        }
+
+        .oscilloscope-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 2;
+        }
+
+        .container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            height: 400px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .label-input {
+            color: #00ffff;
+        }
+
+        .label-trig {
+            color: #0080ff;
+        }
+
+        .label-trig-orange {
+            color: #ff8800;
+        }
+
+        .label-output {
+            color: #ff00ff;
+        }
+
+        .label-output-yellow {
+            color: #ffff00;
+        }
+
+        canvas {
+            background-color: #000000;
+            border: 2px solid #444444;
+            border-radius: 4px;
+        }
+
+        .controls {
+            position: relative;
+            width: 800px;
+            height: 60px;
+            margin: 0 auto;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            background-color: #0080ff;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .button:hover {
+            background-color: #0099ff;
+            transform: translateY(-1px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+            background-color: #0066cc;
+        }
+
+        .smpl-button {
+            position: absolute;
+            top: 0;
+            left: 365px;
+            transform: translateX(-50%);
+        }
+
+        .track-button {
+            position: absolute;
+            top: 0;
+            left: 515px;
+            transform: translateX(-50%);
+        }
+
+        .track-button:hover {
+            background-color: #0099ff;
+            transform: translateX(-50%) translateY(-1px);
+        }
+
+        .track-button:active {
+            transform: translateX(-50%) translateY(0);
+            background-color: #0066cc;
+        }
+
+        .smpl-button:hover {
+            background-color: #0099ff;
+            transform: translateX(-50%) translateY(-1px);
+        }
+
+        .smpl-button:active {
+            transform: translateX(-50%) translateY(0);
+            background-color: #0066cc;
+        }
+
+        .duo-button {
+            background-color: #8800ff;
+            position: absolute;
+            top: 0;
+            left: 439px;
+            transform: translateX(-50%);
+        }
+
+        .duo-button:hover {
+            background-color: #9922ff;
+            transform: translateX(-50%) translateY(-1px);
+        }
+
+        .duo-button:active {
+            background-color: #6600cc;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .mode-controls {
+        position: relative; /* or absolute */
+        left: 138px;        /* Position center at 400px (or whatever X coordinate you want) */
+        transform: translateX(-50%); /* Shift button left by half its width */
+        margin-top: 20px;
+        }
+
+        .mode-button {
+            background-color: #444444;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .mode-button:hover {
+            background-color: #555555;
+        }
+
+        .mode-button:active {
+            background-color: #333333;
+        }
+        
+
+        .title {
+            margin-bottom: 20px;
+            margin-left: 150px;    
+            font-size: 24px;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        .duo-text {
+            position: fixed;
+            left: calc(50vw - 700px);
+            top: 80px;
+            max-width: 250px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #ffffff;
+            display: none;
+        }
+
+        .duo-text strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="title" id="pageTitle">Sample/Track and Hold Demonstration</div>
+    
+    <div class="main-container" id="mainContainer">
+        <div class="text-column" id="leftText">
+            <p>Think of a sample and hold as an analog memory circuit.</p>
+            <p>There is a signal input, trigger input, and signal output. When a trigger is applied to the trigger input, the instantaneous level of the input voltage is relayed to the signal output.</p>
+            <p>This voltage is held until another trigger is received, which causes the process to repeat. A sample and hold is a great way to turn smooth and continuous modulation into stepwise modulation.</p>
+            <p>Click the <strong>smpl</strong> button and watch the purple output trace.</p>
+        </div>
+        
+        <div class="oscilloscope-section">
+            <div class="duo-text" id="duoText">
+                <p>Duophonic Distribution combines two sample and holds and allows them to be triggered in an alternating manner.</p>
+                <p>This allows two distinct, but related, modulation sources to be derived from the same input signal. It can also be used to create true two voice polyphony by splitting a single pitch CV sequence between two oscillators.</p>
+                <p>Click the <strong>Duo</strong> button and watch the two output traces adjust in an alternating manner. To mimic this behavior IRL, apply a gate to the input of the Flip Flop style clock divider.</p>
+            </div>
+
+            <div class="container">
+                <div class="labels" id="labelContainer">
+                    <div class="label-input">input</div>
+                    <div class="label-trig">trig</div>
+                    <div class="label-output">output</div>
+                </div>
+                
+                <canvas id="oscilloscope" width="800" height="400"></canvas>
+            </div>
+            
+            <div class="controls" id="controlsContainer">
+                <button class="button smpl-button" id="trigButton">SMPL</button>
+                <button class="button track-button" id="trackButton">TRACK</button>
+            </div>
+            
+            <div class="mode-controls">
+                <button class="button mode-button" id="modeButton">Switch to Duophonic Mode</button>
+            </div>
+        </div>
+        
+        <div class="text-column" id="rightText">
+            <p>A track and hold responds to gates rather than triggers.</p>
+            <p>When a gate high is applied to the trigger input, the signal output will perfectly follow the signal input. When the gate goes low, the output signal will hold its most recent value until another trigger or gate is applied to the trigger input.</p>
+            <p>Click and hold the <strong>track</strong> button and watch the purple output trace. Notice the return back to sample and hold behavior after its release.</p>
+            <p>Combining both of these functions into one module allows for dynamic modulation by switching between stepwise and smooth modulation</p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('oscilloscope');
+        const ctx = canvas.getContext('2d');
+        const trigButton = document.getElementById('trigButton');
+        const trackButton = document.getElementById('trackButton');
+        const modeButton = document.getElementById('modeButton');
+        const pageTitle = document.getElementById('pageTitle');
+        const labelContainer = document.getElementById('labelContainer');
+        const controlsContainer = document.getElementById('controlsContainer');
+        
+        let currentMode = 'single';
+        let time = 0;
+        let sampledValue = 0;
+        let sampledValue1 = 0;
+        let sampledValue2 = 0;
+        let triggerActive = false;
+        let triggerActive1 = false;
+        let triggerActive2 = false;
+        let triggerTime = 0;
+        let triggerTime1 = 0;
+        let triggerTime2 = 0;
+        let trackActive = false;
+        let alternateFlag = true;
+        const triggerDuration = 12.5;
+        
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerY = height / 2;
+        const centerX = width / 2;
+        
+        const triangleFreq = 0.002;
+        const amplitude = height * 0.25;
+        
+        const triggerEvents = [];
+        const trackEvents = [];
+        const triggerEvents1 = [];
+        const triggerEvents2 = [];
+        let currentSampledValue = 0;
+        let lastTriggerTime = -1000;
+        let trackStartTime = -1000;
+        
+        function getTriangleValue(t) {
+            const phase = (t * triangleFreq) % 1;
+            let value;
+            if (phase < 0.5) {
+                value = phase * 2;
+            } else {
+                value = 2 - (phase * 2);
+            }
+            return (value - 0.5) * 2;
+        }
+        
+        function drawGrid() {
+            ctx.strokeStyle = 'rgba(128, 128, 128, 0.75)';
+            ctx.lineWidth = 1;
+            
+            ctx.beginPath();
+            ctx.moveTo(0, centerY);
+            ctx.lineTo(width, centerY);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, 0);
+            ctx.lineTo(centerX, height);
+            ctx.stroke();
+        }
+        
+        function switchMode() {
+            if (currentMode === 'single') {
+                currentMode = 'duo';
+                pageTitle.textContent = 'Duophonic Sample and Hold Demonstration';
+                modeButton.textContent = 'Switch to Single Mode';
+                
+                // Hide single mode text, show duophonic text
+                document.getElementById('leftText').style.visibility = 'hidden';
+                document.getElementById('rightText').style.visibility = 'hidden';
+                document.getElementById('duoText').style.display = 'block';
+                
+                labelContainer.innerHTML = `
+                    <div class="label-input">input</div>
+                    <div class="label-trig">trig 1</div>
+                    <div class="label-trig-orange">trig 2</div>
+                    <div class="label-output">output 1</div>
+                    <div class="label-output-yellow">output 2</div>
+                `;
+                
+                controlsContainer.innerHTML = `
+                    <button class="button duo-button" id="duoButton">DUO</button>
+                `;
+                
+                const duoButton = document.getElementById('duoButton');
+                duoButton.addEventListener('click', () => {
+                    if (alternateFlag) {
+                        triggerActive1 = true;
+                        triggerTime1 = Date.now();
+                    } else {
+                        triggerActive2 = true;
+                        triggerTime2 = Date.now();
+                    }
+                    alternateFlag = !alternateFlag;
+                });
+                
+            } else {
+                currentMode = 'single';
+                pageTitle.textContent = 'Sample/Track and Hold Demonstration';
+                modeButton.textContent = 'Switch to Duophonic Mode';
+                
+                // Show single mode text, hide duophonic text
+                document.getElementById('leftText').style.visibility = 'visible';
+                document.getElementById('rightText').style.visibility = 'visible';
+                document.getElementById('duoText').style.display = 'none';
+                
+                labelContainer.innerHTML = `
+                    <div class="label-input">input</div>
+                    <div class="label-trig">trig</div>
+                    <div class="label-output">output</div>
+                `;
+                
+                controlsContainer.innerHTML = `
+                    <button class="button smpl-button" id="trigButton">SMPL</button>
+                    <button class="button track-button" id="trackButton">TRACK</button>
+                `;
+                
+                const newTrigButton = document.getElementById('trigButton');
+                const newTrackButton = document.getElementById('trackButton');
+                
+                newTrigButton.addEventListener('click', () => {
+                    triggerActive = true;
+                    triggerTime = Date.now();
+                });
+                
+                newTrackButton.addEventListener('mousedown', () => {
+                    trackActive = true;
+                    trackStartTime = time;
+                    trackEvents.push({
+                        startTime: time,
+                        endTime: null
+                    });
+                });
+                
+                newTrackButton.addEventListener('mouseup', () => {
+                    if (trackActive) {
+                        trackActive = false;
+                        if (trackEvents.length > 0) {
+                            const currentEvent = trackEvents[trackEvents.length - 1];
+                            if (currentEvent.endTime === null) {
+                                currentEvent.endTime = time;
+                                sampledValue = getTriangleValue(time);
+                            }
+                        }
+                    }
+                });
+                
+                newTrackButton.addEventListener('mouseleave', () => {
+                    if (trackActive) {
+                        trackActive = false;
+                        if (trackEvents.length > 0) {
+                            const currentEvent = trackEvents[trackEvents.length - 1];
+                            if (currentEvent.endTime === null) {
+                                currentEvent.endTime = time;
+                                sampledValue = getTriangleValue(time);
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        function drawSingleMode() {
+            const currentTime = Date.now();
+            
+            if (triggerActive && (currentTime - triggerTime) < 16) {
+                triggerEvents.push({
+                    time: time,
+                    duration: triggerDuration
+                });
+                
+                currentSampledValue = getTriangleValue(time);
+                sampledValue = currentSampledValue;
+                lastTriggerTime = time;
+                
+                const cutoffTime = time - width * 2;
+                triggerEvents.splice(0, triggerEvents.findIndex(event => event.time > cutoffTime));
+                trackEvents.splice(0, trackEvents.findIndex(event => event.startTime > cutoffTime));
+            }
+            
+            if (triggerActive && (currentTime - triggerTime) > triggerDuration) {
+                triggerActive = false;
+            }
+            
+            ctx.lineWidth = 2;
+            
+            // Draw input waveform (cyan)
+            ctx.strokeStyle = '#00ffff';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                const inputValue = getTriangleValue(t);
+                const inputY = centerY - (inputValue * amplitude);
+                
+                if (x === 0) {
+                    ctx.moveTo(x, inputY);
+                } else {
+                    ctx.lineTo(x, inputY);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw trigger trace (blue)
+            ctx.strokeStyle = '#0080ff';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                
+                let triggerState = false;
+                
+                for (const event of triggerEvents) {
+                    const timeSinceTrigger = t - event.time;
+                    if (timeSinceTrigger >= 0 && timeSinceTrigger < event.duration) {
+                        triggerState = true;
+                        break;
+                    }
+                }
+                
+                if (!triggerState) {
+                    for (const event of trackEvents) {
+                        if (t >= event.startTime && (event.endTime === null || t <= event.endTime)) {
+                            triggerState = true;
+                            break;
+                        }
+                    }
+                }
+                
+                const triggerY = triggerState ? (height / 3) : centerY;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, triggerY);
+                } else {
+                    ctx.lineTo(x, triggerY);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw output trace (magenta)
+            ctx.strokeStyle = '#ff00ff';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                
+                let outputValue = 0;
+                
+                let inTrackPeriod = false;
+                let activeTrackEvent = null;
+                for (const event of trackEvents) {
+                    if (t >= event.startTime && (event.endTime === null || t <= event.endTime)) {
+                        inTrackPeriod = true;
+                        activeTrackEvent = event;
+                        break;
+                    }
+                }
+                
+                if (inTrackPeriod && activeTrackEvent) {
+                    if (t <= time) {
+                        outputValue = getTriangleValue(t);
+                    } else {
+                        let preTrackValue = 0;
+                        let mostRecentTime = -Infinity;
+                        
+                        for (const trigEvent of triggerEvents) {
+                            if (trigEvent.time < activeTrackEvent.startTime && trigEvent.time > mostRecentTime) {
+                                mostRecentTime = trigEvent.time;
+                                preTrackValue = getTriangleValue(trigEvent.time);
+                            }
+                        }
+                        
+                        for (const prevTrackEvent of trackEvents) {
+                            if (prevTrackEvent.endTime !== null && 
+                                prevTrackEvent.endTime < activeTrackEvent.startTime && 
+                                prevTrackEvent.endTime > mostRecentTime) {
+                                mostRecentTime = prevTrackEvent.endTime;
+                                preTrackValue = getTriangleValue(prevTrackEvent.endTime);
+                            }
+                        }
+                        
+                        outputValue = preTrackValue;
+                    }
+                } else {
+                    let mostRecentTime = -Infinity;
+                    let mostRecentValue = 0;
+                    
+                    for (const event of triggerEvents) {
+                        if (event.time <= t && event.time > mostRecentTime) {
+                            mostRecentTime = event.time;
+                            mostRecentValue = getTriangleValue(event.time);
+                        }
+                    }
+                    
+                    for (const event of trackEvents) {
+                        if (event.endTime !== null && event.endTime <= t && event.endTime > mostRecentTime) {
+                            mostRecentTime = event.endTime;
+                            mostRecentValue = getTriangleValue(event.endTime);
+                        }
+                    }
+                    
+                    outputValue = mostRecentValue;
+                }
+                
+                const outputY = centerY - (outputValue * amplitude);
+                
+                if (x === 0) {
+                    ctx.moveTo(x, outputY);
+                } else {
+                    ctx.lineTo(x, outputY);
+                }
+            }
+            ctx.stroke();
+        }
+        
+        function drawDuoMode() {
+            const currentTime = Date.now();
+            
+            if (triggerActive1 && (currentTime - triggerTime1) < 16) {
+                triggerEvents1.push({
+                    time: time,
+                    duration: triggerDuration
+                });
+                sampledValue1 = getTriangleValue(time);
+                
+                const cutoffTime = time - width * 2;
+                triggerEvents1.splice(0, triggerEvents1.findIndex(event => event ? event.time > cutoffTime : true));
+            }
+            
+            if (triggerActive2 && (currentTime - triggerTime2) < 16) {
+                triggerEvents2.push({
+                    time: time,
+                    duration: triggerDuration
+                });
+                sampledValue2 = getTriangleValue(time);
+                
+                const cutoffTime = time - width * 2;
+                triggerEvents2.splice(0, triggerEvents2.findIndex(event => event ? event.time > cutoffTime : true));
+            }
+            
+            if (triggerActive1 && (currentTime - triggerTime1) > triggerDuration) {
+                triggerActive1 = false;
+            }
+            if (triggerActive2 && (currentTime - triggerTime2) > triggerDuration) {
+                triggerActive2 = false;
+            }
+            
+            ctx.lineWidth = 2;
+            
+            // Draw input waveform (cyan)
+            ctx.strokeStyle = '#00ffff';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                const inputValue = getTriangleValue(t);
+                const inputY = centerY - (inputValue * amplitude);
+                
+                if (x === 0) {
+                    ctx.moveTo(x, inputY);
+                } else {
+                    ctx.lineTo(x, inputY);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw trigger trace 1 (blue)
+            ctx.strokeStyle = '#0080ff';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                
+                let triggerState1 = false;
+                for (const event of triggerEvents1) {
+                    const timeSinceTrigger = t - event.time;
+                    if (timeSinceTrigger >= 0 && timeSinceTrigger < event.duration) {
+                        triggerState1 = true;
+                        break;
+                    }
+                }
+                
+                const triggerY1 = triggerState1 ? (height / 3) : centerY;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, triggerY1);
+                } else {
+                    ctx.lineTo(x, triggerY1);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw trigger trace 2 (orange)
+            ctx.strokeStyle = '#ff8800';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                
+                let triggerState2 = false;
+                for (const event of triggerEvents2) {
+                    const timeSinceTrigger = t - event.time;
+                    if (timeSinceTrigger >= 0 && timeSinceTrigger < event.duration) {
+                        triggerState2 = true;
+                        break;
+                    }
+                }
+                
+                const triggerY2 = triggerState2 ? (height / 3) : centerY;
+                
+                if (x === 0) {
+                    ctx.moveTo(x, triggerY2);
+                } else {
+                    ctx.lineTo(x, triggerY2);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw output trace 1 (magenta)
+            ctx.strokeStyle = '#ff00ff';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                
+                let outputValue1 = 0;
+                for (let i = triggerEvents1.length - 1; i >= 0; i--) {
+                    const event = triggerEvents1[i];
+                    if (event.time <= t) {
+                        outputValue1 = getTriangleValue(event.time);
+                        break;
+                    }
+                }
+                
+                const outputY1 = centerY - (outputValue1 * amplitude);
+                
+                if (x === 0) {
+                    ctx.moveTo(x, outputY1);
+                } else {
+                    ctx.lineTo(x, outputY1);
+                }
+            }
+            ctx.stroke();
+            
+            // Draw output trace 2 (yellow)
+            ctx.strokeStyle = '#ffff00';
+            ctx.beginPath();
+            for (let x = 0; x < width; x++) {
+                const t = time + (x - centerX) * 2;
+                
+                let outputValue2 = 0;
+                for (let i = triggerEvents2.length - 1; i >= 0; i--) {
+                    const event = triggerEvents2[i];
+                    if (event.time <= t) {
+                        outputValue2 = getTriangleValue(event.time);
+                        break;
+                    }
+                }
+                
+                const outputY2 = centerY - (outputValue2 * amplitude);
+                
+                if (x === 0) {
+                    ctx.moveTo(x, outputY2);
+                } else {
+                    ctx.lineTo(x, outputY2);
+                }
+            }
+            ctx.stroke();
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, width, height);
+            
+            drawGrid();
+            
+            if (currentMode === 'single') {
+                drawSingleMode();
+            } else {
+                drawDuoMode();
+            }
+            
+            time += 1;
+            requestAnimationFrame(draw);
+        }
+        
+        // Initial event listeners
+        trigButton.addEventListener('click', () => {
+            triggerActive = true;
+            triggerTime = Date.now();
+        });
+        
+        trackButton.addEventListener('mousedown', () => {
+            trackActive = true;
+            trackStartTime = time;
+            trackEvents.push({
+                startTime: time,
+                endTime: null
+            });
+        });
+        
+        trackButton.addEventListener('mouseup', () => {
+            if (trackActive) {
+                trackActive = false;
+                if (trackEvents.length > 0) {
+                    const currentEvent = trackEvents[trackEvents.length - 1];
+                    if (currentEvent.endTime === null) {
+                        currentEvent.endTime = time;
+                        sampledValue = getTriangleValue(time);
+                    }
+                }
+            }
+        });
+        
+        trackButton.addEventListener('mouseleave', () => {
+            if (trackActive) {
+                trackActive = false;
+                if (trackEvents.length > 0) {
+                    const currentEvent = trackEvents[trackEvents.length - 1];
+                    if (currentEvent.endTime === null) {
+                        currentEvent.endTime = time;
+                        sampledValue = getTriangleValue(time);
+                    }
+                }
+            }
+        });
+        
+        modeButton.addEventListener('click', switchMode);
+        
+        draw();
+    </script>
+</body>
+</html>
