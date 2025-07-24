@@ -23,28 +23,7 @@
             margin-bottom: 30px;
             max-width: 1400px;
             width: 100%;
-            justify-content: center; /* Center the container */
-        }
-
-        /* Mobile responsive adjustments */
-        @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-                align-items: center;
-                gap: 20px;
-                padding: 0 10px;
-            }
-            
-            .text-column {
-                width: 100%;
-                max-width: 500px;
-                text-align: center;
-            }
-            
-            .oscilloscope-section {
-                width: 100%;
-                max-width: 800px;
-            }
+            justify-content: center;
         }
 
         .text-column {
@@ -53,6 +32,8 @@
             font-size: 14px;
             line-height: 1.6;
             color: #ffffff;
+            /* Hide text columns - we'll use popups instead */
+            display: none;
         }
 
         .text-column strong {
@@ -240,15 +221,128 @@
             }
         }
 
-        .duo-text {
-            font-size: 14px;
-            line-height: 1.6;
+        /* Popup System */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup-window {
+            background-color: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ffffff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80%;
+            padding: 30px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
             color: #ffffff;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .popup-close:hover {
+            color: #ff4444;
+        }
+
+        .popup-content {
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .popup-content strong {
+            font-weight: bold;
+        }
+
+        .popup-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .popup-nav-button {
+            background-color: #444444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.1s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .popup-nav-button:hover {
+            background-color: #555555;
+            transform: translateY(-1px);
+        }
+
+        .popup-nav-button:active {
+            transform: translateY(0);
+            background-color: #333333;
+        }
+
+        .popup-nav-button:disabled {
+            background-color: #222222;
+            color: #666666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-trigger {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            z-index: 100;
             display: none;
         }
 
-        .duo-text strong {
-            font-weight: bold;
+        .info-trigger:hover {
+            color: #00ffff;
+        }
+
+        /* Text block styles */
+        .text-block {
+            display: none;
+        }
+
+        .text-block.active {
+            display: block;
         }
     </style>
 </head>
@@ -256,21 +350,6 @@
     <div class="title" id="pageTitle">Sample/Track and Hold Demonstration</div>
     
     <div class="main-container" id="mainContainer">
-        <div class="text-column" id="leftText">
-            <div class="duo-text" id="duoText">
-                <p>Duophonic Distribution combines two sample and holds and allows them to be triggered in an alternating manner.</p>
-                <p>This allows two distinct, but related, modulation sources to be derived from the same input signal. It can also be used to create true two voice polyphony by splitting a single pitch CV sequence between two oscillators.</p>
-                <p>Click the <strong>Duo</strong> button and watch the two output traces adjust in an alternating manner. To mimic this behavior IRL, apply a gate to the input of the Flip Flop style clock divider.</p>
-            </div>
-            
-            <div class="single-mode-text">
-                <p>Think of a sample and hold as an analog memory circuit.</p>
-                <p>There is a signal input, trigger input, and signal output. When a trigger is applied to the trigger input, the instantaneous level of the input voltage is relayed to the signal output.</p>
-                <p>This voltage is held until another trigger is received, which causes the process to repeat. A sample and hold is a great way to turn smooth and continuous modulation into stepwise modulation.</p>
-                <p>Click the <strong>smpl</strong> button and watch the purple output trace.</p>
-            </div>
-        </div>
-        
         <div class="oscilloscope-section">
             <div class="container">
                 <div class="labels" id="labelContainer">
@@ -291,12 +370,48 @@
                 <button class="button mode-button" id="modeButton">Switch to Duophonic Mode</button>
             </div>
         </div>
-        
-        <div class="text-column" id="rightText">
-            <p>A track and hold responds to gates rather than triggers.</p>
-            <p>When a gate high is applied to the trigger input, the signal output will perfectly follow the signal input. When the gate goes low, the output signal will hold its most recent value until another trigger or gate is applied to the trigger input.</p>
-            <p>Click and hold the <strong>track</strong> button and watch the purple output trace. Notice the return back to sample and hold behavior after its release.</p>
-            <p>Combining both of these functions into one module allows for dynamic modulation by switching between stepwise and smooth modulation</p>
+    </div>
+
+    <!-- Info trigger -->
+    <div class="info-trigger" id="infoTrigger">info</div>
+
+    <!-- Popup System -->
+    <div class="popup-overlay" id="popupOverlay">
+        <div class="popup-window">
+            <button class="popup-close" id="popupClose">×</button>
+            <div class="popup-content">
+                <!-- Single Mode Text Blocks -->
+                <div class="text-block active" id="singleText1">
+                    <p>Think of a sample and hold as an analog memory circuit.</p>
+                    <p>There is a signal input, trigger input, and signal output. When a trigger is applied to the trigger input, the instantaneous level of the input voltage is relayed to the signal output. This voltage is held until another trigger is received, which causes the process to repeat. A sample and hold is a great way to turn smooth and continuous modulation into stepwise modulation.</p>
+                    <p>Click the <strong>smpl</strong> button and watch the purple output trace.</p>
+                </div>
+                
+                <div class="text-block" id="singleText2">
+                    <p>A track and hold responds to gates rather than triggers.</p>
+                    <p>When a gate high is applied to the trigger input, the signal output will perfectly follow the signal input. When the gate goes low, the output signal will hold its most recent value until another trigger or gate is applied to the trigger input.</p>
+                    <p>Click and hold the <strong>track</strong> button and watch the purple output trace. Notice the return back to sample and hold behavior after its release.</p>
+                </div>
+                
+                <div class="text-block" id="singleText3">
+                    <p>Combining both of these functions into one module allows for dynamic modulation by switching between stepwise and smooth modulation.</p>
+                </div>
+
+                <!-- Duophonic Mode Text Blocks -->
+                <div class="text-block" id="duoText1">
+                    <p>Duophonic Distribution combines two sample and holds and allows them to be triggered in an alternating manner.</p>
+                    <p>This allows two distinct, but related, modulation sources to be derived from the same input signal. It can also be used to create true two voice polyphony by splitting a single pitch CV sequence between two oscillators.</p>
+                </div>
+                
+                <div class="text-block" id="duoText2">
+                    <p>Click the <strong>Duo</strong> button and watch the two output traces adjust in an alternating manner. To mimic this behavior IRL, apply a gate to the input of Duophonic Distribution's Flip Flop style clock divider.</p>
+                </div>
+            </div>
+            
+            <div class="popup-navigation">
+                <button class="popup-nav-button" id="prevButton" disabled><< prev</button>
+                <button class="popup-nav-button" id="nextButton">next >></button>
+            </div>
         </div>
     </div>
 
@@ -309,6 +424,87 @@
         const pageTitle = document.getElementById('pageTitle');
         const labelContainer = document.getElementById('labelContainer');
         const controlsContainer = document.getElementById('controlsContainer');
+        
+        // Popup system elements
+        const popupOverlay = document.getElementById('popupOverlay');
+        const popupClose = document.getElementById('popupClose');
+        const infoTrigger = document.getElementById('infoTrigger');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        
+        // Popup state
+        let popupMode = 'single';
+        let currentTextIndex = 0;
+        let hasSeenSinglePopup = false;
+        let hasSeenDuoPopup = false;
+        
+        // Single mode text blocks
+        const singleTextBlocks = ['singleText1', 'singleText2', 'singleText3'];
+        // Duo mode text blocks  
+        const duoTextBlocks = ['duoText1', 'duoText2'];
+        
+        function showTextBlock(index) {
+            // Hide all text blocks
+            document.querySelectorAll('.text-block').forEach(block => {
+                block.classList.remove('active');
+            });
+            
+            // Show current text block based on mode
+            const blocks = popupMode === 'single' ? singleTextBlocks : duoTextBlocks;
+            if (index >= 0 && index < blocks.length) {
+                document.getElementById(blocks[index]).classList.add('active');
+            }
+            
+            // Update navigation buttons
+            prevButton.disabled = index === 0;
+            nextButton.disabled = index === blocks.length - 1;
+            currentTextIndex = index;
+        }
+        
+        function showPopup() {
+            popupOverlay.style.display = 'flex';
+            infoTrigger.style.display = 'none';
+            
+            // Reset to first text block for current mode
+            currentTextIndex = 0;
+            showTextBlock(0);
+        }
+        
+        function hidePopup() {
+            popupOverlay.style.display = 'none';
+            infoTrigger.style.display = 'block';
+            
+            // Mark as seen
+            if (popupMode === 'single') {
+                hasSeenSinglePopup = true;
+            } else {
+                hasSeenDuoPopup = true;
+            }
+        }
+        
+        // Popup event listeners
+        popupClose.addEventListener('click', hidePopup);
+        infoTrigger.addEventListener('click', showPopup);
+        
+        prevButton.addEventListener('click', () => {
+            if (currentTextIndex > 0) {
+                showTextBlock(currentTextIndex - 1);
+            }
+        });
+        
+        nextButton.addEventListener('click', () => {
+            const maxIndex = (popupMode === 'single' ? singleTextBlocks.length : duoTextBlocks.length) - 1;
+            if (currentTextIndex < maxIndex) {
+                showTextBlock(currentTextIndex + 1);
+            }
+        });
+        
+        // Close popup when clicking outside
+        popupOverlay.addEventListener('click', (e) => {
+            if (e.target === popupOverlay) {
+                hidePopup();
+            }
+        });
         
         let currentMode = 'single';
         let time = 0;
@@ -370,13 +566,9 @@
         function switchMode() {
             if (currentMode === 'single') {
                 currentMode = 'duo';
+                popupMode = 'duo';  // Update popup mode
                 pageTitle.textContent = 'Duophonic Sample and Hold Demonstration';
                 modeButton.textContent = 'Switch to Single Mode';
-                
-                // Hide single mode text, show duophonic text
-                document.querySelector('.single-mode-text').style.display = 'none';
-                document.getElementById('rightText').style.visibility = 'hidden';
-                document.getElementById('duoText').style.display = 'block';
                 
                 labelContainer.innerHTML = `
                     <div class="label-input">input</div>
@@ -402,15 +594,16 @@
                     alternateFlag = !alternateFlag;
                 });
                 
+                // Show popup if not seen before
+                if (!hasSeenDuoPopup) {
+                    showPopup();
+                }
+                
             } else {
                 currentMode = 'single';
+                popupMode = 'single';  // Update popup mode
                 pageTitle.textContent = 'Sample/Track and Hold Demonstration';
                 modeButton.textContent = 'Switch to Duophonic Mode';
-                
-                // Show single mode text, hide duophonic text
-                document.querySelector('.single-mode-text').style.display = 'block';
-                document.getElementById('rightText').style.visibility = 'visible';
-                document.getElementById('duoText').style.display = 'none';
                 
                 labelContainer.innerHTML = `
                     <div class="label-input">input</div>
@@ -491,6 +684,8 @@
                         }
                     }
                 });
+                
+                // Don't auto-show popup when returning to single mode
             }
         }
         
