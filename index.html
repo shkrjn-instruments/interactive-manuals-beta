@@ -263,6 +263,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            /* Prevent tap highlighting */
+            -webkit-tap-highlight-color: transparent;
+            /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .popup-close:hover {
@@ -299,6 +306,13 @@
             cursor: pointer;
             transition: all 0.1s;
             font-family: 'Courier New', monospace;
+            /* Prevent tap highlighting */
+            -webkit-tap-highlight-color: transparent;
+            /* Prevent text selection */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
 
         .popup-nav-button:hover {
@@ -492,26 +506,41 @@
             }
         }
         
-        // Popup event listeners
-        popupClose.addEventListener('click', hidePopup);
-        infoTrigger.addEventListener('click', showPopup);
+        // Popup event listeners with touch support
+        const addTouchAndClickListener = (element, handler) => {
+            element.addEventListener('click', handler);
+            element.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                handler(e);
+            });
+        };
         
-        prevButton.addEventListener('click', () => {
+        addTouchAndClickListener(popupClose, hidePopup);
+        addTouchAndClickListener(infoTrigger, showPopup);
+        
+        addTouchAndClickListener(prevButton, () => {
             if (currentTextIndex > 0) {
                 showTextBlock(currentTextIndex - 1);
             }
         });
         
-        nextButton.addEventListener('click', () => {
+        addTouchAndClickListener(nextButton, () => {
             const maxIndex = (popupMode === 'single' ? singleTextBlocks.length : duoTextBlocks.length) - 1;
             if (currentTextIndex < maxIndex) {
                 showTextBlock(currentTextIndex + 1);
             }
         });
         
-        // Close popup when clicking outside
+        // Close popup when clicking/touching outside
         popupOverlay.addEventListener('click', (e) => {
             if (e.target === popupOverlay) {
+                hidePopup();
+            }
+        });
+        
+        popupOverlay.addEventListener('touchend', (e) => {
+            if (e.target === popupOverlay) {
+                e.preventDefault();
                 hidePopup();
             }
         });
@@ -1083,6 +1112,10 @@
         document.addEventListener('mouseleave', currentEventListeners.trackMouseLeave);
         
         modeButton.addEventListener('click', switchMode);
+        modeButton.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            switchMode();
+        });
         
         // Show initial popup
         showPopup();
