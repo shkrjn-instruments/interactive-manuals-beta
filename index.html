@@ -23,6 +23,28 @@
             margin-bottom: 30px;
             max-width: 1400px;
             width: 100%;
+            justify-content: center; /* Center the container */
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                padding: 0 10px;
+            }
+            
+            .text-column {
+                width: 100%;
+                max-width: 500px;
+                text-align: center;
+            }
+            
+            .oscilloscope-section {
+                width: 100%;
+                max-width: 800px;
+            }
         }
 
         .text-column {
@@ -203,6 +225,19 @@
             font-size: 24px;
             color: #ffffff;
             text-align: center;
+            width: 100%;
+            max-width: 800px; /* Match oscilloscope width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Responsive title sizing for mobile */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 20px;
+                margin-bottom: 20px;
+                padding: 0 10px; /* Add some side padding on mobile */
+            }
         }
 
         .duo-text {
