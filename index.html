@@ -443,6 +443,16 @@
         // Duo mode text blocks  
         const duoTextBlocks = ['duoText1', 'duoText2'];
         
+        // Store event listeners for cleanup
+        let currentEventListeners = {
+            trigButton: null,
+            trackButton: null,
+            duoButton: null,
+            trackMouseUp: null,
+            trackMouseLeave: null,
+            trackTouchEnd: null
+        };
+        
         function showTextBlock(index) {
             // Hide all text blocks
             document.querySelectorAll('.text-block').forEach(block => {
@@ -537,6 +547,10 @@
         let lastTriggerTime = -1000;
         let trackStartTime = -1000;
         
+        // Prevent double-firing on mobile
+        let lastDuoClickTime = 0;
+        const minClickInterval = 100; // Minimum time between clicks in ms
+        
         function getTriangleValue(t) {
             const phase = (t * triangleFreq) % 1;
             let value;
@@ -563,7 +577,27 @@
             ctx.stroke();
         }
         
+        // Clean up function to remove all event listeners
+        function cleanupEventListeners() {
+            // Remove global event listeners
+            if (currentEventListeners.trackMouseUp) {
+                document.removeEventListener('mouseup', currentEventListeners.trackMouseUp);
+                currentEventListeners.trackMouseUp = null;
+            }
+            if (currentEventListeners.trackMouseLeave) {
+                document.removeEventListener('mouseleave', currentEventListeners.trackMouseLeave);
+                currentEventListeners.trackMouseLeave = null;
+            }
+            if (currentEventListeners.trackTouchEnd) {
+                document.removeEventListener('touchend', currentEventListeners.trackTouchEnd);
+                currentEventListeners.trackTouchEnd = null;
+            }
+        }
+        
         function switchMode() {
+            // Clean up any existing event listeners
+            cleanupEventListeners();
+            
             if (currentMode === 'single') {
                 currentMode = 'duo';
                 popupMode = 'duo';  // Update popup mode
@@ -583,16 +617,33 @@
                 `;
                 
                 const duoButton = document.getElementById('duoButton');
-                duoButton.addEventListener('click', () => {
+                
+                // Handler function for duo button
+                const duoHandler = (e) => {
+                    e.preventDefault();
+                    
+                    const currentTime = Date.now();
+                    if (currentTime - lastDuoClickTime < minClickInterval) {
+                        return; // Ignore rapid clicks
+                    }
+                    lastDuoClickTime = currentTime;
+                    
                     if (alternateFlag) {
                         triggerActive1 = true;
-                        triggerTime1 = Date.now();
+                        triggerTime1 = currentTime;
                     } else {
                         triggerActive2 = true;
-                        triggerTime2 = Date.now();
+                        triggerTime2 = currentTime;
                     }
                     alternateFlag = !alternateFlag;
-                });
+                };
+                
+                // Add both click and touch support
+                duoButton.addEventListener('click', duoHandler);
+                duoButton.addEventListener('touchstart', duoHandler);
+                
+                // Store reference for cleanup
+                currentEventListeners.duoButton = duoHandler;
                 
                 // Show popup if not seen before
                 if (!hasSeenDuoPopup) {
@@ -619,47 +670,29 @@
                 const newTrigButton = document.getElementById('trigButton');
                 const newTrackButton = document.getElementById('trackButton');
                 
-                newTrigButton.addEventListener('click', () => {
+                // Trigger button handler
+                const trigHandler = (e) => {
+                    e.preventDefault();
                     triggerActive = true;
                     triggerTime = Date.now();
-                });
+                };
                 
-                newTrackButton.addEventListener('mousedown', () => {
-                    trackActive = true;
-                    trackStartTime = time;
-                    trackEvents.push({
-                        startTime: time,
-                        endTime: null
-                    });
-                });
-
-                // Add touch support for mobile
-                newTrackButton.addEventListener('touchstart', (e) => {
-                    e.preventDefault(); // Prevent text selection
-                    trackActive = true;
-                    trackStartTime = time;
-                    trackEvents.push({
-                        startTime: time,
-                        endTime: null
-                    });
-                });
+                newTrigButton.addEventListener('click', trigHandler);
+                newTrigButton.addEventListener('touchstart', trigHandler);
                 
-                newTrackButton.addEventListener('mouseup', () => {
-                    if (trackActive) {
-                        trackActive = false;
-                        if (trackEvents.length > 0) {
-                            const currentEvent = trackEvents[trackEvents.length - 1];
-                            if (currentEvent.endTime === null) {
-                                currentEvent.endTime = time;
-                                sampledValue = getTriangleValue(time);
-                            }
-                        }
-                    }
-                });
-
-                // Touch end support
-                newTrackButton.addEventListener('touchend', (e) => {
+                // Track button handlers
+                const trackStartHandler = (e) => {
                     e.preventDefault();
+                    trackActive = true;
+                    trackStartTime = time;
+                    trackEvents.push({
+                        startTime: time,
+                        endTime: null
+                    });
+                };
+                
+                const trackEndHandler = (e) => {
+                    if (e) e.preventDefault();
                     if (trackActive) {
                         trackActive = false;
                         if (trackEvents.length > 0) {
@@ -670,22 +703,19 @@
                             }
                         }
                     }
-                });
+                };
                 
-                newTrackButton.addEventListener('mouseleave', () => {
-                    if (trackActive) {
-                        trackActive = false;
-                        if (trackEvents.length > 0) {
-                            const currentEvent = trackEvents[trackEvents.length - 1];
-                            if (currentEvent.endTime === null) {
-                                currentEvent.endTime = time;
-                                sampledValue = getTriangleValue(time);
-                            }
-                        }
-                    }
-                });
+                newTrackButton.addEventListener('mousedown', trackStartHandler);
+                newTrackButton.addEventListener('touchstart', trackStartHandler);
                 
-                // Don't auto-show popup when returning to single mode
+                // Global handlers for track end
+                currentEventListeners.trackMouseUp = trackEndHandler;
+                currentEventListeners.trackTouchEnd = trackEndHandler;
+                currentEventListeners.trackMouseLeave = trackEndHandler;
+                
+                document.addEventListener('mouseup', currentEventListeners.trackMouseUp);
+                document.addEventListener('touchend', currentEventListeners.trackTouchEnd);
+                document.addEventListener('mouseleave', currentEventListeners.trackMouseLeave);
             }
         }
         
@@ -1007,22 +1037,16 @@
         }
         
         // Initial event listeners
-        trigButton.addEventListener('click', () => {
+        const initialTrigHandler = (e) => {
+            e.preventDefault();
             triggerActive = true;
             triggerTime = Date.now();
-        });
+        };
         
-        trackButton.addEventListener('mousedown', () => {
-            trackActive = true;
-            trackStartTime = time;
-            trackEvents.push({
-                startTime: time,
-                endTime: null
-            });
-        });
-
-        // Touch support for initial track button
-        trackButton.addEventListener('touchstart', (e) => {
+        trigButton.addEventListener('click', initialTrigHandler);
+        trigButton.addEventListener('touchstart', initialTrigHandler);
+        
+        const initialTrackStartHandler = (e) => {
             e.preventDefault();
             trackActive = true;
             trackStartTime = time;
@@ -1030,9 +1054,10 @@
                 startTime: time,
                 endTime: null
             });
-        });
+        };
         
-        trackButton.addEventListener('mouseup', () => {
+        const initialTrackEndHandler = (e) => {
+            if (e) e.preventDefault();
             if (trackActive) {
                 trackActive = false;
                 if (trackEvents.length > 0) {
@@ -1043,36 +1068,24 @@
                     }
                 }
             }
-        });
-
-        trackButton.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            if (trackActive) {
-                trackActive = false;
-                if (trackEvents.length > 0) {
-                    const currentEvent = trackEvents[trackEvents.length - 1];
-                    if (currentEvent.endTime === null) {
-                        currentEvent.endTime = time;
-                        sampledValue = getTriangleValue(time);
-                    }
-                }
-            }
-        });
+        };
         
-        trackButton.addEventListener('mouseleave', () => {
-            if (trackActive) {
-                trackActive = false;
-                if (trackEvents.length > 0) {
-                    const currentEvent = trackEvents[trackEvents.length - 1];
-                    if (currentEvent.endTime === null) {
-                        currentEvent.endTime = time;
-                        sampledValue = getTriangleValue(time);
-                    }
-                }
-            }
-        });
+        trackButton.addEventListener('mousedown', initialTrackStartHandler);
+        trackButton.addEventListener('touchstart', initialTrackStartHandler);
+        
+        // Store initial handlers
+        currentEventListeners.trackMouseUp = initialTrackEndHandler;
+        currentEventListeners.trackTouchEnd = initialTrackEndHandler;
+        currentEventListeners.trackMouseLeave = initialTrackEndHandler;
+        
+        document.addEventListener('mouseup', currentEventListeners.trackMouseUp);
+        document.addEventListener('touchend', currentEventListeners.trackTouchEnd);
+        document.addEventListener('mouseleave', currentEventListeners.trackMouseLeave);
         
         modeButton.addEventListener('click', switchMode);
+        
+        // Show initial popup
+        showPopup();
         
         draw();
     </script>
