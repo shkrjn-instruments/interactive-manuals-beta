@@ -104,6 +104,15 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.1s;
+            /* Prevent text selection on touch devices */
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            /* Prevent touch callouts on iOS */
+            -webkit-touch-callout: none;
+            /* Prevent tap highlighting */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .button:hover {
@@ -188,11 +197,9 @@
         .mode-button:active {
             background-color: #333333;
         }
-        
 
         .title {
-            margin-bottom: 20px;
-            margin-left: 150px;    
+            margin-bottom: 30px;
             font-size: 24px;
             color: #ffffff;
             text-align: center;
@@ -207,6 +214,21 @@
             line-height: 1.6;
             color: #ffffff;
             display: none;
+            /* Better mobile support */
+            z-index: 100;
+        }
+
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .duo-text {
+                position: relative;
+                left: auto;
+                top: auto;
+                width: 90%;
+                max-width: none;
+                margin: 20px auto;
+                text-align: center;
+            }
         }
 
         .duo-text strong {
@@ -399,8 +421,34 @@
                         endTime: null
                     });
                 });
+
+                // Add touch support for mobile
+                newTrackButton.addEventListener('touchstart', (e) => {
+                    e.preventDefault(); // Prevent text selection
+                    trackActive = true;
+                    trackStartTime = time;
+                    trackEvents.push({
+                        startTime: time,
+                        endTime: null
+                    });
+                });
                 
                 newTrackButton.addEventListener('mouseup', () => {
+                    if (trackActive) {
+                        trackActive = false;
+                        if (trackEvents.length > 0) {
+                            const currentEvent = trackEvents[trackEvents.length - 1];
+                            if (currentEvent.endTime === null) {
+                                currentEvent.endTime = time;
+                                sampledValue = getTriangleValue(time);
+                            }
+                        }
+                    }
+                });
+
+                // Touch end support
+                newTrackButton.addEventListener('touchend', (e) => {
+                    e.preventDefault();
                     if (trackActive) {
                         trackActive = false;
                         if (trackEvents.length > 0) {
@@ -759,8 +807,33 @@
                 endTime: null
             });
         });
+
+        // Touch support for initial track button
+        trackButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            trackActive = true;
+            trackStartTime = time;
+            trackEvents.push({
+                startTime: time,
+                endTime: null
+            });
+        });
         
         trackButton.addEventListener('mouseup', () => {
+            if (trackActive) {
+                trackActive = false;
+                if (trackEvents.length > 0) {
+                    const currentEvent = trackEvents[trackEvents.length - 1];
+                    if (currentEvent.endTime === null) {
+                        currentEvent.endTime = time;
+                        sampledValue = getTriangleValue(time);
+                    }
+                }
+            }
+        });
+
+        trackButton.addEventListener('touchend', (e) => {
+            e.preventDefault();
             if (trackActive) {
                 trackActive = false;
                 if (trackEvents.length > 0) {
