@@ -1158,6 +1158,10 @@
             
             let currentMode = 'single';
             let time = 0;
+            let shLastFrameTime = performance.now();
+            const shScrollSpeed = 60; // Target 60 updates per second
+            let lastFrameTime = performance.now();
+            const scrollSpeed = 60; // Target 60 updates per second
             let sampledValue = 0;
             let sampledValue1 = 0;
             let sampledValue2 = 0;
@@ -1169,7 +1173,7 @@
             let triggerTime2 = 0;
             let trackActive = false;
             let alternateFlag = true;
-            const triggerDuration = 6.25; // Longer duration for better LED visibility in flip flop // Shortened from 50 to 12.5 (1/4 of original)
+            const triggerDuration = 50; // Longer duration for better LED visibility in flip flop // Shortened from 50 to 12.5 (1/4 of original)
             
             let width = canvas.width;
             let height = canvas.height;
@@ -1682,6 +1686,10 @@
             }
             
             function draw() {
+                const currentFrameTime = performance.now();
+                const deltaTime = currentFrameTime - shLastFrameTime;
+                const timeIncrement = (deltaTime / 1000) * shScrollSpeed;
+                
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(0, 0, width, height);
                 
@@ -1693,7 +1701,8 @@
                     drawDuoMode();
                 }
                 
-                time += 1;
+                time += timeIncrement;
+                shLastFrameTime = currentFrameTime;
                 requestAnimationFrame(draw);
             }
             
@@ -2146,11 +2155,13 @@
             // Demo state
             let currentMode = 'flipflop';
             let time = 0;
+            let ffLastFrameTime = performance.now();
+            const ffScrollSpeed = 60; // Target 60 units per second
             let flipState = true; // flip starts high
             let flopState = false; // flop starts low
             let triggerActive = false;
             let triggerTime = 0;
-            const triggerDuration = 20;
+            const triggerDuration = 12.5;
             
             // Comparator state
             let threshold = 0; // -1 to 1
@@ -2562,6 +2573,10 @@
             }
             
             function draw() {
+                const currentFrameTime = performance.now();
+                const deltaTime = currentFrameTime - ffLastFrameTime;
+                const timeIncrement = (deltaTime / 1000) * ffScrollSpeed;
+                
                 ctx.fillStyle = '#000000';
                 ctx.fillRect(0, 0, width, height);
                 
@@ -2569,7 +2584,8 @@
                 
                 if (currentMode === 'flipflop') {
                     drawFlipFlopMode();
-                    time += 1;
+                    time += timeIncrement;
+                    ffLastFrameTime = currentFrameTime;
                 } else {
                     drawComparatorMode();
                     // Comparator mode is static, no time increment
