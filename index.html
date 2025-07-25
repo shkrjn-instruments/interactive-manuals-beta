@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sample and Hold Demo</title>
     <style>
         body {
@@ -52,6 +52,8 @@
             align-items: center;
             gap: 20px;
             margin-bottom: 20px;
+            width: 100%;
+            max-width: 840px; /* canvas width + labels */
         }
 
         .labels {
@@ -87,11 +89,15 @@
             background-color: #000000;
             border: 2px solid #444444;
             border-radius: 4px;
+            width: 100%;
+            max-width: 800px;
+            height: auto;
         }
 
         .controls {
             position: relative;
-            width: 800px;
+            width: 100%;
+            max-width: 800px;
             height: 60px;
             margin: 0 auto;
             margin-bottom: 20px;
@@ -212,12 +218,77 @@
             margin-right: auto;
         }
 
-        /* Responsive title sizing for mobile */
-        @media (max-width: 768px) {
+        /* Responsive design for different screen sizes */
+        @media (max-width: 900px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                gap: 10px;
+            }
+            
+            .labels {
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 600px) {
             .title {
-                font-size: 20px;
-                margin-bottom: 20px;
-                padding: 0 10px; /* Add some side padding on mobile */
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            
+            .labels {
+                font-size: 12px;
+                margin-right: 5px;
+            }
+            
+            .button {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+            
+            .controls {
+                height: 50px;
+            }
+            
+            .smpl-button {
+                left: 45.6%;
+            }
+            
+            .track-button {
+                left: 64.4%;
+            }
+            
+            .duo-button {
+                left: 54.9%;
+            }
+            
+            .mode-controls {
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 15px;
+            }
+            
+            .mode-button {
+                font-size: 12px;
+                padding: 8px 16px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .button {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .popup-window {
+                padding: 20px;
+            }
+            
+            .popup-content {
+                font-size: 14px;
             }
         }
 
@@ -439,6 +510,26 @@
         const labelContainer = document.getElementById('labelContainer');
         const controlsContainer = document.getElementById('controlsContainer');
         
+        // Responsive canvas sizing
+        function setCanvasSize() {
+            const container = canvas.parentElement;
+            const maxWidth = Math.min(800, window.innerWidth - 100); // 100px for padding and labels
+            const aspectRatio = 2; // 800:400 = 2:1
+            
+            canvas.width = maxWidth;
+            canvas.height = maxWidth / aspectRatio;
+            
+            // Update label container height to match canvas
+            const labels = document.querySelector('.labels');
+            if (labels) {
+                labels.style.height = canvas.height + 'px';
+            }
+        }
+        
+        // Call on load and resize
+        setCanvasSize();
+        window.addEventListener('resize', setCanvasSize);
+        
         // Popup system elements
         const popupOverlay = document.getElementById('popupOverlay');
         const popupClose = document.getElementById('popupClose');
@@ -560,13 +651,23 @@
         let alternateFlag = true;
         const triggerDuration = 12.5;
         
-        const width = canvas.width;
-        const height = canvas.height;
-        const centerY = height / 2;
-        const centerX = width / 2;
+        // Dynamic sizing variables
+        let width = canvas.width;
+        let height = canvas.height;
+        let centerY = height / 2;
+        let centerX = width / 2;
         
         const triangleFreq = 0.002;
-        const amplitude = height * 0.25;
+        let amplitude = height * 0.25;
+        
+        // Update sizing variables when canvas resizes
+        window.addEventListener('resize', () => {
+            width = canvas.width;
+            height = canvas.height;
+            centerY = height / 2;
+            centerX = width / 2;
+            amplitude = height * 0.25;
+        });
         
         const triggerEvents = [];
         const trackEvents = [];
