@@ -90,10 +90,13 @@
         .container {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 20px;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 840px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .labels {
@@ -105,10 +108,13 @@
             font-size: 16px;
             font-weight: bold;
             position: relative;
+            margin-right: 10px;
+            min-width: 60px;
         }
         
         .labels > div {
             position: absolute;
+            right: 0;
         }
         
         .labels > div:nth-child(1) {
@@ -491,6 +497,7 @@
             .labels {
                 font-size: 12px;
                 margin-right: 5px;
+                min-width: 45px;
             }
             
             .button {
@@ -556,6 +563,10 @@
 
             .slider-label {
                 font-size: 12px;
+            }
+            
+            .container {
+                gap: 10px;
             }
         }
         
@@ -1042,7 +1053,9 @@
             // Responsive canvas sizing
             function setCanvasSize() {
                 const container = canvas.parentElement;
-                const maxWidth = Math.min(800, window.innerWidth - 100);
+                const labelWidth = 80; // Space for labels
+                const extraSpace = 120; // Space for labels + padding
+                const maxWidth = Math.min(800, window.innerWidth - extraSpace);
                 const aspectRatio = 2;
                 
                 canvas.width = maxWidth;
@@ -1763,7 +1776,8 @@
             // Responsive canvas sizing
             function setCanvasSize() {
                 const container = canvas.parentElement;
-                const maxWidth = Math.min(800, window.innerWidth - 160); // Extra space for slider
+                const extraSpace = 180; // Extra space for slider + labels
+                const maxWidth = Math.min(800, window.innerWidth - extraSpace);
                 const aspectRatio = 2;
                 
                 canvas.width = maxWidth;
@@ -2037,7 +2051,8 @@
             // Responsive canvas sizing
             function setCanvasSize() {
                 const container = canvas.parentElement;
-                const maxWidth = Math.min(800, window.innerWidth - 160); // Extra space for LEDs/sliders
+                const extraSpace = 200; // Extra space for LEDs/sliders + labels
+                const maxWidth = Math.min(800, window.innerWidth - extraSpace);
                 const aspectRatio = 2;
                 
                 canvas.width = maxWidth;
