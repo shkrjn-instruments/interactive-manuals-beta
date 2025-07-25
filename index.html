@@ -361,6 +361,55 @@
             background-color: #333333;
         }
 
+        /* LED styles */
+        .led-container {
+            position: absolute;
+            right: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .led {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #222222;
+            border: 2px solid #444444;
+            transition: all 0.1s;
+        }
+
+        .led.active-blue {
+            background-color: #0080ff;
+            border-color: #0080ff;
+            box-shadow: 0 0 10px #0080ff;
+        }
+
+        .led.active-cyan {
+            background-color: #00ffff;
+            border-color: #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+        }
+
+        .led.active-purple {
+            background-color: #ff00ff;
+            border-color: #ff00ff;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+
+        .slider-label {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
         /* Responsive design */
         @media (max-width: 900px) {
             body {
@@ -376,6 +425,10 @@
             }
 
             .slider-container {
+                right: -50px;
+            }
+
+            .led-container {
                 right: -50px;
             }
         }
@@ -432,6 +485,16 @@
                 height: 250px;
             }
 
+            .led-container {
+                right: -40px;
+                gap: 15px;
+            }
+
+            .led {
+                width: 25px;
+                height: 25px;
+            }
+
             .slider-thumb {
                 width: 25px;
                 height: 25px;
@@ -440,6 +503,10 @@
             .waveform-button {
                 font-size: 14px;
                 padding: 8px 20px;
+            }
+
+            .slider-label {
+                font-size: 12px;
             }
         }
         
@@ -700,10 +767,58 @@
         </div>
     </div>
 
-    <!-- Flip Flop Demo Container (placeholder) -->
+    <!-- Flip Flop Demo Container -->
     <div class="demo-container" id="flipFlopDemo">
         <button class="back-button" id="backFromFF">Back to Menu</button>
-        <div class="title">Flip Flop Clock Divider / Comparator - Coming Soon</div>
+        <div class="title" id="ffPageTitle">Flip Flop Clock Divider Demonstration</div>
+        
+        <div class="main-container">
+            <div class="oscilloscope-section">
+                <div class="container">
+                    <div class="labels" id="ffLabelContainer">
+                        <div class="label-trig">trig</div>
+                        <div class="label-input">flip</div>
+                        <div class="label-output">flop</div>
+                    </div>
+                    
+                    <div class="canvas-container">
+                        <canvas id="ffOscilloscope" width="800" height="400"></canvas>
+                        <div class="info-trigger" id="ffInfoTrigger">info</div>
+                        <a class="pdf-link" href="https://static1.squarespace.com/static/62c31debe11bcc2b1ade537b/t/646bc355b89fc210cd31f93e/1684783957746/shkrjn+duophonic+distribution+Manual.pdf" target="_blank" rel="noopener noreferrer">pdf</a>
+                        
+                        <!-- LED indicators for flip flop mode -->
+                        <div class="led-container" id="ffLedContainer">
+                            <div class="led" id="ledTrig"></div>
+                            <div class="led" id="ledFlip"></div>
+                            <div class="led" id="ledFlop"></div>
+                        </div>
+                        
+                        <!-- Sliders for comparator mode -->
+                        <div class="slider-container" id="ffThreshSlider" style="display: none;">
+                            <div class="slider-label">thresh</div>
+                            <div class="slider-track">
+                                <div class="slider-thumb" id="threshThumb" style="top: 50%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -110px;">
+                            <div class="slider-label">offset</div>
+                            <div class="slider-track">
+                                <div class="slider-thumb" id="offsetThumb" style="top: 50%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls" id="ffControlsContainer">
+                    <button class="button smpl-button" id="ffTrigButton">TRIG</button>
+                </div>
+                
+                <div class="mode-controls">
+                    <button class="button mode-button" id="ffModeButton">Switch to Comparator Mode</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Popup System for Sample/Hold -->
@@ -770,6 +885,41 @@
         </div>
     </div>
 
+    <!-- Popup System for Flip Flop -->
+    <div class="popup-overlay" id="ffPopupOverlay" style="display: none;">
+        <div class="popup-window">
+            <button class="popup-close" id="ffPopupClose">×</button>
+            <div class="popup-content">
+                <!-- Flip Flop Mode Text Blocks -->
+                <div class="text-block active" id="ffText1">
+                    <p>A flip flop circuit is a clock divider with two outputs. Each output channel divides the input clock by two whilte maintaining an opposite phase relationship with the other channel. We will call one output "flip" and the other "flop".</p>
+                    <p>Initially "flip" is logic high while "flop" is logic low. When a trigger is applied to the input, "flip" goes low, while "flop" goes high. The state of the two outputs continue to alternate as successive triggers are applied to the input.</p>
+                </div>
+                
+                <div class="text-block" id="ffText2">
+                    <p>Click the trigger button and watch the flip and flop traces alternate on the oscilloscope and via the LEDs on the right.</p>
+                    <p>This kind of clock divider does not need a continuous or steady clock. Each trigger will make the outputs change states and then they will simply wait for the next trigger.</p>
+                </div>
+
+                <!-- Comparator Mode Text Blocks -->
+                <div class="text-block" id="compText1">
+                    <p>A comparator is a logic circuit with an input signal, a threshold level, and a logic output. When the input signal is greater than the threshold level, the output is a logic high. When the input signal is lower than the threshold level, the output is a logic low.</p>
+                    <p>Comparators are often used for pulse width modulation. Adjust the threshold level via the slider on the right and watch what happens to the output waveform.</p>
+                </div>
+                
+                <div class="text-block" id="compText2">
+                    <p>The comparator on Duophonic Distribution has a fixed internal threshold level. But because everything is relative, a variable threshold can easily be patched by mixing your input waveform with an adjustable DC offset before it is applied to the input of the comparator.</p>
+                    <p>Adjust the offset slider and watch how it affects the output waveform. Alternate between adjusting the threshold and offset slider. Note how they have the same affect on the output.</p>
+                </div>
+            </div>
+            
+            <div class="popup-navigation">
+                <button class="popup-nav-button" id="ffPrevButton" disabled><< prev</button>
+                <button class="popup-nav-button" id="ffNextButton">next >></button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Start Screen Navigation
         const startScreen = document.getElementById('startScreen');
@@ -800,6 +950,9 @@
             } else if (demoId === 'fullWaveDemo' && !window.fwInitialized) {
                 initFullWaveRectifierDemo();
                 window.fwInitialized = true;
+            } else if (demoId === 'flipFlopDemo' && !window.ffInitialized) {
+                initFlipFlopDemo();
+                window.ffInitialized = true;
             }
         }
 
@@ -953,7 +1106,7 @@
             let triggerTime2 = 0;
             let trackActive = false;
             let alternateFlag = true;
-            const triggerDuration = 12.5;
+            const triggerDuration = 50; // Increased for better LED visibility
             
             let width = canvas.width;
             let height = canvas.height;
@@ -1798,6 +1951,588 @@
             
             // Show popup on first load
             showPopup();
+            
+            // Start drawing
+            draw();
+        }
+
+        // Flip Flop / Comparator Demo Code
+        function initFlipFlopDemo() {
+            const canvas = document.getElementById('ffOscilloscope');
+            const ctx = canvas.getContext('2d');
+            const trigButton = document.getElementById('ffTrigButton');
+            const modeButton = document.getElementById('ffModeButton');
+            const pageTitle = document.getElementById('ffPageTitle');
+            const labelContainer = document.getElementById('ffLabelContainer');
+            const controlsContainer = document.getElementById('ffControlsContainer');
+            const ledContainer = document.getElementById('ffLedContainer');
+            const threshSlider = document.getElementById('ffThreshSlider');
+            const offsetSlider = document.getElementById('ffOffsetSlider');
+            const threshThumb = document.getElementById('threshThumb');
+            const offsetThumb = document.getElementById('offsetThumb');
+            
+            // LED elements
+            const ledTrig = document.getElementById('ledTrig');
+            const ledFlip = document.getElementById('ledFlip');
+            const ledFlop = document.getElementById('ledFlop');
+            
+            // Responsive canvas sizing
+            function setCanvasSize() {
+                const container = canvas.parentElement;
+                const maxWidth = Math.min(800, window.innerWidth - 160); // Extra space for LEDs/sliders
+                const aspectRatio = 2;
+                
+                canvas.width = maxWidth;
+                canvas.height = maxWidth / aspectRatio;
+            }
+            
+            setCanvasSize();
+            window.addEventListener('resize', setCanvasSize);
+            
+            // Popup system
+            const popupOverlay = document.getElementById('ffPopupOverlay');
+            const popupClose = document.getElementById('ffPopupClose');
+            const infoTrigger = document.getElementById('ffInfoTrigger');
+            const prevButton = document.getElementById('ffPrevButton');
+            const nextButton = document.getElementById('ffNextButton');
+            
+            let popupMode = 'flipflop';
+            let currentTextIndex = 0;
+            let hasSeenFlipFlopPopup = false;
+            let hasSeenComparatorPopup = false;
+            
+            const flipFlopTextBlocks = ['ffText1', 'ffText2'];
+            const comparatorTextBlocks = ['compText1', 'compText2'];
+            
+            function showTextBlock(index) {
+                document.querySelectorAll('#ffPopupOverlay .text-block').forEach(block => {
+                    block.classList.remove('active');
+                });
+                
+                const blocks = popupMode === 'flipflop' ? flipFlopTextBlocks : comparatorTextBlocks;
+                if (index >= 0 && index < blocks.length) {
+                    document.getElementById(blocks[index]).classList.add('active');
+                }
+                
+                prevButton.disabled = index === 0;
+                nextButton.disabled = index === blocks.length - 1;
+                currentTextIndex = index;
+            }
+            
+            function showPopup() {
+                popupOverlay.style.display = 'flex';
+                currentTextIndex = 0;
+                showTextBlock(0);
+            }
+            
+            function hidePopup() {
+                popupOverlay.style.display = 'none';
+                
+                if (popupMode === 'flipflop') {
+                    hasSeenFlipFlopPopup = true;
+                } else {
+                    hasSeenComparatorPopup = true;
+                }
+            }
+            
+            addTouchAndClickListener(popupClose, hidePopup);
+            addTouchAndClickListener(infoTrigger, showPopup);
+            
+            addTouchAndClickListener(prevButton, () => {
+                if (currentTextIndex > 0) {
+                    showTextBlock(currentTextIndex - 1);
+                }
+            });
+            
+            addTouchAndClickListener(nextButton, () => {
+                const maxIndex = (popupMode === 'flipflop' ? flipFlopTextBlocks.length : comparatorTextBlocks.length) - 1;
+                if (currentTextIndex < maxIndex) {
+                    showTextBlock(currentTextIndex + 1);
+                }
+            });
+            
+            popupOverlay.addEventListener('click', (e) => {
+                if (e.target === popupOverlay) {
+                    hidePopup();
+                }
+            });
+            
+            popupOverlay.addEventListener('touchend', (e) => {
+                if (e.target === popupOverlay) {
+                    e.preventDefault();
+                    hidePopup();
+                }
+            });
+            
+            // Demo state
+            let currentMode = 'flipflop';
+            let time = 0;
+            let flipState = true; // flip starts high
+            let flopState = false; // flop starts low
+            let triggerActive = false;
+            let triggerTime = 0;
+            const triggerDuration = 12.5;
+            
+            // Comparator state
+            let threshold = 0; // -1 to 1
+            let offset = 0; // -1 to 1
+            let thresholdPosition = 0.5; // 0 to 1
+            let offsetPosition = 0.5; // 0 to 1
+            
+            // Canvas variables
+            let width = canvas.width;
+            let height = canvas.height;
+            let centerY = height / 2;
+            let centerX = width / 2;
+            let amplitude = height * 0.25;
+            
+            window.addEventListener('resize', () => {
+                width = canvas.width;
+                height = canvas.height;
+                centerY = height / 2;
+                centerX = width / 2;
+                amplitude = height * 0.25;
+            });
+            
+            const triggerEvents = [];
+            let lastFlipTime = -1000;
+            
+            // Prevent double-firing on mobile
+            let lastTrigClickTime = 0;
+            const minClickInterval = 100;
+            
+            // Triangle wave function for comparator
+            const triangleFreq = 0.002;
+            
+            function getTriangleValue(t) {
+                const phase = (t * triangleFreq) % 1;
+                let value;
+                if (phase < 0.5) {
+                    value = phase * 2;
+                } else {
+                    value = 2 - (phase * 2);
+                }
+                return (value - 0.5) * 2;
+            }
+            
+            // Static triangle for comparator (2 cycles)
+            function getStaticTriangleValue(x) {
+                const cycles = 2;
+                const phase = (x / width) * cycles;
+                const cyclePhase = phase % 1;
+                
+                let value;
+                if (cyclePhase < 0.5) {
+                    value = cyclePhase * 4 - 1;
+                } else {
+                    value = 3 - cyclePhase * 4;
+                }
+                
+                return value + offset;
+            }
+            
+            function drawGrid() {
+                ctx.strokeStyle = 'rgba(128, 128, 128, 0.75)';
+                ctx.lineWidth = 1;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, centerY);
+                ctx.lineTo(width, centerY);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(centerX, 0);
+                ctx.lineTo(centerX, height);
+                ctx.stroke();
+            }
+            
+            // Slider functionality
+            let isDraggingThresh = false;
+            let isDraggingOffset = false;
+            
+            function updateThresholdPosition(clientY) {
+                const rect = threshSlider.querySelector('.slider-track').getBoundingClientRect();
+                const relativeY = clientY - rect.top;
+                const trackHeight = rect.height;
+                
+                thresholdPosition = Math.max(0, Math.min(1, relativeY / trackHeight));
+                threshold = (0.5 - thresholdPosition) * 2; // Convert to -1 to 1 range
+                
+                const thumbTop = thresholdPosition * 100;
+                threshThumb.style.top = thumbTop + '%';
+            }
+            
+            function updateOffsetPosition(clientY) {
+                const rect = offsetSlider.querySelector('.slider-track').getBoundingClientRect();
+                const relativeY = clientY - rect.top;
+                const trackHeight = rect.height;
+                
+                offsetPosition = Math.max(0, Math.min(1, relativeY / trackHeight));
+                offset = (0.5 - offsetPosition) * 2; // Convert to -1 to 1 range
+                
+                const thumbTop = offsetPosition * 100;
+                offsetThumb.style.top = thumbTop + '%';
+            }
+            
+            function startThreshDrag(e) {
+                e.preventDefault();
+                isDraggingThresh = true;
+                threshThumb.classList.add('dragging');
+                
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                updateThresholdPosition(clientY);
+            }
+            
+            function startOffsetDrag(e) {
+                e.preventDefault();
+                isDraggingOffset = true;
+                offsetThumb.classList.add('dragging');
+                
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                updateOffsetPosition(clientY);
+            }
+            
+            function moveDrag(e) {
+                if (!isDraggingThresh && !isDraggingOffset) return;
+                e.preventDefault();
+                
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                if (isDraggingThresh) {
+                    updateThresholdPosition(clientY);
+                } else if (isDraggingOffset) {
+                    updateOffsetPosition(clientY);
+                }
+            }
+            
+            function endDrag(e) {
+                if (isDraggingThresh || isDraggingOffset) {
+                    e.preventDefault();
+                    isDraggingThresh = false;
+                    isDraggingOffset = false;
+                    threshThumb.classList.remove('dragging');
+                    offsetThumb.classList.remove('dragging');
+                }
+            }
+            
+            // Add slider event listeners
+            threshThumb.addEventListener('mousedown', startThreshDrag);
+            threshThumb.addEventListener('touchstart', startThreshDrag);
+            threshSlider.querySelector('.slider-track').addEventListener('mousedown', startThreshDrag);
+            threshSlider.querySelector('.slider-track').addEventListener('touchstart', startThreshDrag);
+            
+            offsetThumb.addEventListener('mousedown', startOffsetDrag);
+            offsetThumb.addEventListener('touchstart', startOffsetDrag);
+            offsetSlider.querySelector('.slider-track').addEventListener('mousedown', startOffsetDrag);
+            offsetSlider.querySelector('.slider-track').addEventListener('touchstart', startOffsetDrag);
+            
+            document.addEventListener('mousemove', moveDrag);
+            document.addEventListener('touchmove', moveDrag);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchend', endDrag);
+            document.addEventListener('mouseleave', endDrag);
+            
+            function switchMode() {
+                if (currentMode === 'flipflop') {
+                    currentMode = 'comparator';
+                    popupMode = 'comparator';
+                    pageTitle.textContent = 'Comparator Demonstration';
+                    modeButton.textContent = 'Switch to Flip Flop Mode';
+                    
+                    labelContainer.innerHTML = `
+                        <div class="label-input">input</div>
+                        <div class="label-trig">threshold</div>
+                        <div class="label-output">output</div>
+                    `;
+                    
+                    // Hide LEDs, show sliders
+                    ledContainer.style.display = 'none';
+                    threshSlider.style.display = 'block';
+                    offsetSlider.style.display = 'block';
+                    
+                    // Hide trigger button for comparator mode
+                    trigButton.style.display = 'none';
+                    
+                    if (!hasSeenComparatorPopup) {
+                        showPopup();
+                    }
+                    
+                } else {
+                    currentMode = 'flipflop';
+                    popupMode = 'flipflop';
+                    pageTitle.textContent = 'Flip Flop Clock Divider Demonstration';
+                    modeButton.textContent = 'Switch to Comparator Mode';
+                    
+                    labelContainer.innerHTML = `
+                        <div class="label-trig">trig</div>
+                        <div class="label-input">flip</div>
+                        <div class="label-output">flop</div>
+                    `;
+                    
+                    // Show LEDs, hide sliders
+                    ledContainer.style.display = 'flex';
+                    threshSlider.style.display = 'none';
+                    offsetSlider.style.display = 'none';
+                    
+                    // Show trigger button for flip flop mode
+                    trigButton.style.display = 'block';
+                }
+            }
+            
+            function updateLEDs() {
+                // Update trigger LED based on trigger events
+                let isTriggerActive = false;
+                const currentTime = Date.now();
+                
+                // Check if trigger is currently active
+                if (triggerActive && (currentTime - triggerTime) < triggerDuration) {
+                    isTriggerActive = true;
+                }
+                
+                // Also check recent trigger events for LED display
+                for (const event of triggerEvents) {
+                    const timeSinceTrigger = time - event.time;
+                    if (timeSinceTrigger >= 0 && timeSinceTrigger < event.duration) {
+                        isTriggerActive = true;
+                        break;
+                    }
+                }
+                
+                if (isTriggerActive) {
+                    ledTrig.classList.add('active-blue');
+                } else {
+                    ledTrig.classList.remove('active-blue');
+                }
+                
+                // Update flip and flop LEDs based on their states
+                if (flipState) {
+                    ledFlip.classList.add('active-cyan');
+                } else {
+                    ledFlip.classList.remove('active-cyan');
+                }
+                
+                if (flopState) {
+                    ledFlop.classList.add('active-purple');
+                } else {
+                    ledFlop.classList.remove('active-purple');
+                }
+            }
+            
+            function drawFlipFlopMode() {
+                const currentTime = Date.now();
+                
+                if (triggerActive && (currentTime - triggerTime) < 16) {
+                    // Only add trigger event and toggle states once per trigger
+                    const triggerAlreadyProcessed = triggerEvents.some(event => 
+                        Math.abs(event.time - time) < 2
+                    );
+                    
+                    if (!triggerAlreadyProcessed) {
+                        triggerEvents.push({
+                            time: time,
+                            duration: triggerDuration,
+                            flipStateAfter: !flipState,  // Store the state after this trigger
+                            flopStateAfter: !flopState
+                        });
+                        
+                        // Toggle flip and flop states only once
+                        flipState = !flipState;
+                        flopState = !flopState;
+                        lastFlipTime = time;
+                    }
+                    
+                    // Clean up old events
+                    const cutoffTime = time - width * 2;
+                    triggerEvents.splice(0, triggerEvents.findIndex(event => event.time > cutoffTime));
+                }
+                
+                if (triggerActive && (currentTime - triggerTime) > triggerDuration) {
+                    triggerActive = false;
+                }
+                
+                ctx.lineWidth = 2;
+                
+                // Draw trigger trace (blue)
+                ctx.strokeStyle = '#0080ff';
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const t = time + (x - centerX) * 2;
+                    
+                    let triggerState = false;
+                    for (const event of triggerEvents) {
+                        const timeSinceTrigger = t - event.time;
+                        if (timeSinceTrigger >= 0 && timeSinceTrigger < event.duration) {
+                            triggerState = true;
+                            break;
+                        }
+                    }
+                    
+                    const triggerY = triggerState ? (height * 0.2) : centerY;
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, triggerY);
+                    } else {
+                        ctx.lineTo(x, triggerY);
+                    }
+                }
+                ctx.stroke();
+                
+                // Draw flip trace (cyan)
+                ctx.strokeStyle = '#00ffff';
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const t = time + (x - centerX) * 2;
+                    
+                    // Find the most recent trigger event before time t
+                    let currentFlipState = true; // Initial state
+                    
+                    for (let i = triggerEvents.length - 1; i >= 0; i--) {
+                        if (triggerEvents[i].time <= t) {
+                            currentFlipState = triggerEvents[i].flipStateAfter;
+                            break;
+                        }
+                    }
+                    
+                    // Logic high = 35% from top, Logic low = centerY (zero line)
+                    const flipY = currentFlipState ? (height * 0.35) : centerY;
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, flipY);
+                    } else {
+                        ctx.lineTo(x, flipY);
+                    }
+                }
+                ctx.stroke();
+                
+                // Draw flop trace (purple)
+                ctx.strokeStyle = '#ff00ff';
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const t = time + (x - centerX) * 2;
+                    
+                    // Find the most recent trigger event before time t
+                    let currentFlopState = false; // Initial state
+                    
+                    for (let i = triggerEvents.length - 1; i >= 0; i--) {
+                        if (triggerEvents[i].time <= t) {
+                            currentFlopState = triggerEvents[i].flopStateAfter;
+                            break;
+                        }
+                    }
+                    
+                    // Logic high = 35% from top, Logic low = centerY (zero line)
+                    const flopY = currentFlopState ? (height * 0.35) : centerY;
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, flopY);
+                    } else {
+                        ctx.lineTo(x, flopY);
+                    }
+                }
+                ctx.stroke();
+                
+                // Update LEDs
+                updateLEDs();
+            }
+            
+            function drawComparatorMode() {
+                ctx.lineWidth = 2;
+                
+                // Draw input waveform (cyan)
+                ctx.strokeStyle = '#00ffff';
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const inputValue = getStaticTriangleValue(x);
+                    const inputY = centerY - (inputValue * amplitude);
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, inputY);
+                    } else {
+                        ctx.lineTo(x, inputY);
+                    }
+                }
+                ctx.stroke();
+                
+                // Draw threshold line (blue)
+                ctx.strokeStyle = '#0080ff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                const threshY = centerY - (threshold * amplitude);
+                ctx.moveTo(0, threshY);
+                ctx.lineTo(width, threshY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Draw output trace (purple)
+                ctx.strokeStyle = '#ff00ff';
+                ctx.beginPath();
+                for (let x = 0; x < width; x++) {
+                    const inputValue = getStaticTriangleValue(x);
+                    const outputState = inputValue > threshold;
+                    // Logic high = 35% from top, Logic low = centerY (zero line)
+                    const outputY = outputState ? (height * 0.35) : centerY;
+                    
+                    if (x === 0) {
+                        ctx.moveTo(x, outputY);
+                    } else {
+                        ctx.lineTo(x, outputY);
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            function draw() {
+                ctx.fillStyle = '#000000';
+                ctx.fillRect(0, 0, width, height);
+                
+                drawGrid();
+                
+                if (currentMode === 'flipflop') {
+                    drawFlipFlopMode();
+                    time += 1;
+                } else {
+                    drawComparatorMode();
+                    // Comparator mode is static, no time increment
+                }
+                
+                requestAnimationFrame(draw);
+            }
+            
+            // Trigger button handler
+            const trigHandler = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                const currentTime = Date.now();
+                if (currentTime - lastTrigClickTime < minClickInterval) {
+                    return;
+                }
+                lastTrigClickTime = currentTime;
+                
+                triggerActive = true;
+                triggerTime = currentTime;
+            };
+            
+            if ('ontouchstart' in window) {
+                trigButton.addEventListener('touchstart', trigHandler);
+            } else {
+                trigButton.addEventListener('click', trigHandler);
+            }
+            
+            modeButton.addEventListener('click', switchMode);
+            modeButton.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                switchMode();
+            });
+            
+            // Show initial popup
+            showPopup();
+            
+            // Initialize LED states
+            updateLEDs();
             
             // Start drawing
             draw();
