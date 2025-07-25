@@ -245,24 +245,25 @@
             }
             
             .button {
-                padding: 12px 20px;
-                font-size: 16px;
+                padding: 10px 15px;
+                font-size: 14px;
             }
             
             .controls {
                 height: 50px;
             }
             
+            /* Better button positioning for mobile */
             .smpl-button {
-                left: 45.6%;
+                left: 35%;
             }
             
             .track-button {
-                left: 64.4%;
+                left: 65%;
             }
             
             .duo-button {
-                left: 54.9%;
+                left: 50%;
             }
             
             .mode-controls {
@@ -277,18 +278,30 @@
             }
         }
         
-        @media (max-width: 400px) {
+        /* Ultra-small screens - stack buttons vertically */
+        @media (max-width: 350px) {
+            .controls {
+                height: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 0 20px;
+            }
+            
             .button {
-                padding: 10px 15px;
-                font-size: 14px;
+                position: static !important;
+                transform: none !important;
+                width: 100%;
+                max-width: 200px;
+                margin: 0 auto;
             }
             
-            .popup-window {
-                padding: 20px;
+            .mode-controls {
+                margin-top: 10px;
             }
             
-            .popup-content {
-                font-size: 14px;
+            .labels {
+                font-size: 11px;
             }
         }
 
