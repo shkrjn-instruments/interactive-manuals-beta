@@ -276,6 +276,10 @@
                 font-size: 12px;
                 padding: 8px 16px;
             }
+            
+            .info-trigger, .pdf-link {
+                font-size: 14px;
+            }
         }
         
         /* Ultra-small screens - stack buttons vertically */
@@ -417,21 +421,47 @@
         }
 
         .info-trigger {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
             color: #ffffff;
             text-decoration: underline;
             cursor: pointer;
             font-family: 'Courier New', monospace;
             font-size: 16px;
-            z-index: 100;
-            display: none;
+            z-index: 10;
+            opacity: 0.8;
+            transition: opacity 0.2s;
         }
 
         .info-trigger:hover {
             color: #00ffff;
+            opacity: 1;
+        }
+        
+        .pdf-link {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: #ffffff;
+            text-decoration: underline;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            z-index: 10;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        
+        .pdf-link:hover {
+            color: #00ffff;
+            opacity: 1;
+        }
+        
+        /* Canvas container for positioning */
+        .canvas-container {
+            position: relative;
+            display: inline-block;
         }
 
         /* Text block styles */
@@ -456,7 +486,11 @@
                     <div class="label-output">output</div>
                 </div>
                 
-                <canvas id="oscilloscope" width="800" height="400"></canvas>
+                <div class="canvas-container">
+                    <canvas id="oscilloscope" width="800" height="400"></canvas>
+                    <div class="info-trigger" id="infoTrigger">info</div>
+                    <a class="pdf-link" href="https://static1.squarespace.com/static/62c31debe11bcc2b1ade537b/t/646bc355b89fc210cd31f93e/1684783957746/shkrjn+duophonic+distribution+Manual.pdf" target="_blank" rel="noopener noreferrer">pdf</a>
+                </div>
             </div>
             
             <div class="controls" id="controlsContainer">
@@ -591,7 +625,6 @@
         
         function showPopup() {
             popupOverlay.style.display = 'flex';
-            infoTrigger.style.display = 'none';
             
             // Reset to first text block for current mode
             currentTextIndex = 0;
@@ -600,7 +633,6 @@
         
         function hidePopup() {
             popupOverlay.style.display = 'none';
-            infoTrigger.style.display = 'block';
             
             // Mark as seen
             if (popupMode === 'single') {
@@ -692,7 +724,11 @@
         
         // Prevent double-firing on mobile
         let lastDuoClickTime = 0;
+        let lastSmplClickTime = 0;
         const minClickInterval = 100; // Minimum time between clicks in ms
+        
+        // Touch event state tracking
+        let touchProcessing = false;
         
         function getTriangleValue(t) {
             const phase = (t * triangleFreq) % 1;
@@ -761,9 +797,12 @@
                 
                 const duoButton = document.getElementById('duoButton');
                 
-                // Handler function for duo button
+                // Handler function for duo button with improved mobile support
                 const duoHandler = (e) => {
-                    e.preventDefault();
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
                     
                     const currentTime = Date.now();
                     if (currentTime - lastDuoClickTime < minClickInterval) {
@@ -781,9 +820,12 @@
                     alternateFlag = !alternateFlag;
                 };
                 
-                // Add both click and touch support
-                duoButton.addEventListener('click', duoHandler);
-                duoButton.addEventListener('touchstart', duoHandler);
+                // Use only touch events on mobile, only click on desktop
+                if ('ontouchstart' in window) {
+                    duoButton.addEventListener('touchstart', duoHandler);
+                } else {
+                    duoButton.addEventListener('click', duoHandler);
+                }
                 
                 // Store reference for cleanup
                 currentEventListeners.duoButton = duoHandler;
@@ -813,15 +855,29 @@
                 const newTrigButton = document.getElementById('trigButton');
                 const newTrackButton = document.getElementById('trackButton');
                 
-                // Trigger button handler
+                // Trigger button handler with better mobile support
                 const trigHandler = (e) => {
-                    e.preventDefault();
+                    if (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }
+                    
+                    const currentTime = Date.now();
+                    if (currentTime - lastSmplClickTime < minClickInterval) {
+                        return; // Ignore rapid clicks
+                    }
+                    lastSmplClickTime = currentTime;
+                    
                     triggerActive = true;
-                    triggerTime = Date.now();
+                    triggerTime = currentTime;
                 };
                 
-                newTrigButton.addEventListener('click', trigHandler);
-                newTrigButton.addEventListener('touchstart', trigHandler);
+                // Use only touch events on mobile, only click on desktop
+                if ('ontouchstart' in window) {
+                    newTrigButton.addEventListener('touchstart', trigHandler);
+                } else {
+                    newTrigButton.addEventListener('click', trigHandler);
+                }
                 
                 // Track button handlers
                 const trackStartHandler = (e) => {
@@ -1179,15 +1235,29 @@
             requestAnimationFrame(draw);
         }
         
-        // Initial event listeners
+        // Initial event listeners with improved mobile support
         const initialTrigHandler = (e) => {
-            e.preventDefault();
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            const currentTime = Date.now();
+            if (currentTime - lastSmplClickTime < minClickInterval) {
+                return;
+            }
+            lastSmplClickTime = currentTime;
+            
             triggerActive = true;
-            triggerTime = Date.now();
+            triggerTime = currentTime;
         };
         
-        trigButton.addEventListener('click', initialTrigHandler);
-        trigButton.addEventListener('touchstart', initialTrigHandler);
+        // Use only touch events on mobile, only click on desktop
+        if ('ontouchstart' in window) {
+            trigButton.addEventListener('touchstart', initialTrigHandler);
+        } else {
+            trigButton.addEventListener('click', initialTrigHandler);
+        }
         
         const initialTrackStartHandler = (e) => {
             e.preventDefault();
