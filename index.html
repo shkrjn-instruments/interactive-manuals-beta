@@ -99,10 +99,52 @@
         .labels {
             display: flex;
             flex-direction: column;
-            justify-content: space-around;
+            justify-content: center;
+            align-items: flex-end;
             height: 400px;
             font-size: 16px;
             font-weight: bold;
+            position: relative;
+        }
+        
+        .labels > div {
+            position: absolute;
+        }
+        
+        .labels > div:nth-child(1) {
+            top: 25%;
+            transform: translateY(-50%);
+        }
+        
+        .labels > div:nth-child(2) {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .labels > div:nth-child(3) {
+            top: 75%;
+            transform: translateY(-50%);
+        }
+        
+        /* Special case for 5 labels (duophonic mode) */
+        .labels.five-labels > div:nth-child(1) {
+            top: 10%;
+        }
+        
+        .labels.five-labels > div:nth-child(2) {
+            top: 30%;
+        }
+        
+        .labels.five-labels > div:nth-child(3) {
+            top: 50%;
+        }
+        
+        .labels.five-labels > div:nth-child(4) {
+            top: 70%;
+        }
+        
+        .labels.five-labels > div:nth-child(5) {
+            top: 90%;
         }
 
         .label-input {
@@ -401,13 +443,20 @@
 
         .slider-label {
             position: absolute;
-            top: -25px;
             left: 50%;
             transform: translateX(-50%);
             color: #ffffff;
             font-size: 14px;
             font-weight: bold;
             white-space: nowrap;
+        }
+        
+        .slider-label.top {
+            top: -25px;
+        }
+        
+        .slider-label.bottom {
+            bottom: -25px;
         }
 
         /* Responsive design */
@@ -795,14 +844,14 @@
                         
                         <!-- Sliders for comparator mode -->
                         <div class="slider-container" id="ffThreshSlider" style="display: none;">
-                            <div class="slider-label">thresh</div>
+                            <div class="slider-label bottom">thresh</div>
                             <div class="slider-track">
                                 <div class="slider-thumb" id="threshThumb" style="top: 50%;"></div>
                             </div>
                         </div>
                         
                         <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -110px;">
-                            <div class="slider-label">offset</div>
+                            <div class="slider-label top">offset</div>
                             <div class="slider-track">
                                 <div class="slider-thumb" id="offsetThumb" style="top: 50%;"></div>
                             </div>
@@ -892,13 +941,13 @@
             <div class="popup-content">
                 <!-- Flip Flop Mode Text Blocks -->
                 <div class="text-block active" id="ffText1">
-                    <p>A flip flop circuit is a clock divider with two outputs. Each output channel divides the input clock by two whilte maintaining an opposite phase relationship with the other channel. We will call one output "flip" and the other "flop".</p>
+                    <p>A flip flop circuit is a clock divider with two outputs. Each output divides the input clock by two and maintains an opposite phase relationship with the other channel. We will call one output "flip" and the other "flop".</p>
                     <p>Initially "flip" is logic high while "flop" is logic low. When a trigger is applied to the input, "flip" goes low, while "flop" goes high. The state of the two outputs continue to alternate as successive triggers are applied to the input.</p>
                 </div>
                 
                 <div class="text-block" id="ffText2">
                     <p>Click the trigger button and watch the flip and flop traces alternate on the oscilloscope and via the LEDs on the right.</p>
-                    <p>This kind of clock divider does not need a continuous or steady clock. Each trigger will make the outputs change states and then they will simply wait for the next trigger.</p>
+                    <p>This kind of clock divider does not need a continuous or steady clock. Each trigger will make it change states and then it will simply wait for the next trigger.</p>
                 </div>
 
                 <!-- Comparator Mode Text Blocks -->
@@ -999,6 +1048,7 @@
                 canvas.width = maxWidth;
                 canvas.height = maxWidth / aspectRatio;
                 
+                // Update label container height to match canvas
                 const labels = labelContainer;
                 if (labels) {
                     labels.style.height = canvas.height + 'px';
@@ -1195,6 +1245,7 @@
                         <div class="label-output">output 1</div>
                         <div class="label-output-yellow">output 2</div>
                     `;
+                    labelContainer.classList.add('five-labels');
                     
                     controlsContainer.innerHTML = `
                         <button class="button duo-button" id="duoButton">DUO</button>
@@ -1247,6 +1298,7 @@
                         <div class="label-trig">trig</div>
                         <div class="label-output">output</div>
                     `;
+                    labelContainer.classList.remove('five-labels');
                     
                     controlsContainer.innerHTML = `
                         <button class="button smpl-button" id="trigButton">SMPL</button>
@@ -1716,6 +1768,12 @@
                 
                 canvas.width = maxWidth;
                 canvas.height = maxWidth / aspectRatio;
+                
+                // Update label container height to match canvas
+                const labels = document.querySelector('#fullWaveDemo .labels');
+                if (labels) {
+                    labels.style.height = canvas.height + 'px';
+                }
             }
             
             setCanvasSize();
@@ -1984,6 +2042,12 @@
                 
                 canvas.width = maxWidth;
                 canvas.height = maxWidth / aspectRatio;
+                
+                // Update label container height to match canvas
+                const labels = labelContainer;
+                if (labels) {
+                    labels.style.height = canvas.height + 'px';
+                }
             }
             
             setCanvasSize();
