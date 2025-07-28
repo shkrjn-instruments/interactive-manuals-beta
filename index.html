@@ -192,17 +192,20 @@
             max-width: 800px;
             margin: 0 auto 20px;
             display: flex;
-            justify-content: space-evenly;
+            justify-content: center;
             align-items: center;
             min-height: 60px;
+            gap: 15px;
+            padding: 0 20px;
+            box-sizing: border-box;
         }
 
         .button {
             background-color: #0080ff;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 12px 24px;
+            font-size: 16px;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
@@ -213,6 +216,8 @@
             user-select: none;
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+            flex: 0 0 auto;
         }
 
         .button:hover {
@@ -255,14 +260,7 @@
         }
 
         .title {
-            margin-bottom: 30px;
-            font-size: 24px;
-            color: #ffffff;
-            text-align: center;
-            width: 100%;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
+            display: none;
         }
 
         /* Back to Menu Button */
@@ -303,7 +301,7 @@
         /* Full Wave Rectifier Specific Styles */
         .slider-container {
             position: absolute;
-            right: -80px;
+            right: -60px;
             top: 50%;
             transform: translateY(-50%);
             height: 300px;
@@ -375,7 +373,7 @@
         /* LED styles */
         .led-container {
             position: absolute;
-            right: -80px;
+            right: -60px;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
@@ -443,20 +441,15 @@
             }
 
             .slider-container {
-                right: -60px;
+                right: -50px;
             }
 
             .led-container {
-                right: -60px;
+                right: -50px;
             }
         }
         
         @media (max-width: 600px) {
-            .title {
-                font-size: 18px;
-                margin-bottom: 15px;
-            }
-            
             .labels {
                 font-size: 12px;
                 margin-right: 5px;
@@ -469,13 +462,13 @@
             }
             
             .button {
-                padding: 10px 15px;
+                padding: 10px 16px;
                 font-size: 14px;
             }
             
             .mode-button {
                 font-size: 12px;
-                padding: 8px 16px;
+                padding: 8px 14px;
             }
             
             .info-trigger, .pdf-link {
@@ -483,14 +476,14 @@
             }
 
             .slider-container {
-                right: -45px;
+                right: -40px;
                 height: 250px;
                 width: 35px;
             }
             
             /* Override inline styles for mobile */
             #ffOffsetSlider {
-                right: -90px !important;
+                right: -80px !important;
             }
             
             .slider-track {
@@ -498,7 +491,7 @@
             }
 
             .led-container {
-                right: -45px;
+                right: -40px;
                 gap: 15px;
             }
 
@@ -526,33 +519,62 @@
             }
         }
         
-        @media (max-width: 400px) {
+        @media (max-width: 480px) {
             .controls {
-                flex-wrap: wrap;
-                gap: 10px;
-                justify-content: center;
+                gap: 8px;
+                padding: 0 5px;
             }
             
             .button {
-                flex: 0 1 calc(50% - 10px);
-                min-width: 120px;
+                padding: 8px 12px;
+                font-size: 13px;
             }
             
+            .mode-button {
+                font-size: 11px;
+                padding: 6px 10px;
+            }
+            
+            .slider-container {
+                right: -30px !important;
+                width: 30px;
+            }
+            
+            #ffOffsetSlider {
+                right: -65px !important;
+            }
+            
+            .led-container {
+                right: -30px !important;
+            }
+            
+            .slider-thumb {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .led {
+                width: 20px;
+                height: 20px;
+            }
+        }
+        
+        @media (max-width: 400px) {
             .labels {
                 font-size: 11px;
             }
             
             .slider-container {
-                right: -35px !important;
+                right: -25px !important;
             }
             
             /* Adjust offset slider for very small screens */
             #ffOffsetSlider {
-                right: -70px !important;
+                right: -55px !important;
             }
             
             .led-container {
-                right: -35px !important;
+                right: -25px !important;
             }
         }
 
@@ -818,7 +840,7 @@
                             </div>
                         </div>
                         
-                        <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -130px;">
+                        <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -110px;">
                             <div class="slider-label top">offset</div>
                             <div class="slider-track">
                                 <div class="slider-thumb" id="offsetThumb" style="top: 50%;"></div>
@@ -1205,7 +1227,6 @@
                 if (currentMode === 'single') {
                     currentMode = 'duo';
                     popupMode = 'duo';
-                    pageTitle.textContent = 'Duophonic Sample and Hold Demonstration';
                     
                     labelContainer.innerHTML = `
                         <div class="label-input">input</div>
@@ -1270,7 +1291,6 @@
                 } else {
                     currentMode = 'single';
                     popupMode = 'single';
-                    pageTitle.textContent = 'Sample/Track and Hold Demonstration';
                     
                     labelContainer.innerHTML = `
                         <div class="label-input">input</div>
@@ -2311,7 +2331,6 @@
                 if (currentMode === 'flipflop') {
                     currentMode = 'comparator';
                     popupMode = 'comparator';
-                    pageTitle.textContent = 'Comparator Demonstration';
                     modeButton.textContent = 'Flip Flop Mode';
                     
                     labelContainer.innerHTML = `
@@ -2335,7 +2354,6 @@
                 } else {
                     currentMode = 'flipflop';
                     popupMode = 'flipflop';
-                    pageTitle.textContent = 'Flip Flop Clock Divider Demonstration';
                     modeButton.textContent = 'Comp. Mode';
                     
                     labelContainer.innerHTML = `
