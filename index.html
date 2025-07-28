@@ -190,9 +190,11 @@
             position: relative;
             width: 100%;
             max-width: 800px;
-            height: 60px;
-            margin: 0 auto;
-            margin-bottom: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            min-height: 60px;
         }
 
         .button {
@@ -204,7 +206,7 @@
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.1s;
+            transition: background-color 0.1s;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -215,90 +217,27 @@
 
         .button:hover {
             background-color: #0099ff;
-            transform: translateY(-1px);
         }
 
         .button:active {
-            transform: translateY(0);
-            background-color: #0066cc;
-        }
-
-        .smpl-button {
-            position: absolute;
-            top: 0;
-            left: 365px;
-            transform: translateX(-50%);
-        }
-
-        .track-button {
-            position: absolute;
-            top: 0;
-            left: 515px;
-            transform: translateX(-50%);
-        }
-
-        .track-button:hover {
-            background-color: #0099ff;
-            transform: translateX(-50%) translateY(-1px);
-        }
-
-        .track-button:active {
-            transform: translateX(-50%) translateY(0);
-            background-color: #0066cc;
-        }
-
-        .smpl-button:hover {
-            background-color: #0099ff;
-            transform: translateX(-50%) translateY(-1px);
-        }
-
-        .smpl-button:active {
-            transform: translateX(-50%) translateY(0);
             background-color: #0066cc;
         }
 
         .duo-button {
             background-color: #8800ff;
-            position: absolute;
-            top: 0;
-            left: 439px;
-            transform: translateX(-50%);
         }
 
         .duo-button:hover {
             background-color: #9922ff;
-            transform: translateX(-50%) translateY(-1px);
         }
 
         .duo-button:active {
             background-color: #6600cc;
-            transform: translateX(-50%) translateY(0);
         }
 
-        .mode-controls {
-            position: absolute;
-            top: 0;
-            right: 0;
-            margin-top: 0;
-        }
-        
-        /* Special case for sample/hold mode button */
-        #sampleHoldDemo .mode-controls {
-            position: relative;
-            left: 138px;
-            transform: translateX(-50%);
-            margin-top: 20px;
-            top: auto;
-            right: auto;
-        }
-        
-        .controls {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            height: 60px;
-            margin: 0 auto;
-            margin-bottom: 20px;
+        .controls.duo-mode {
+            justify-content: center;
+            gap: 40px;
         }
 
         .mode-button {
@@ -524,42 +463,14 @@
                 min-width: 45px;
             }
             
+            .controls {
+                gap: 10px;
+                padding: 0 10px;
+            }
+            
             .button {
                 padding: 10px 15px;
                 font-size: 14px;
-            }
-            
-            .controls {
-                height: 50px;
-            }
-            
-            .smpl-button {
-                left: 35%;
-            }
-            
-            .track-button {
-                left: 65%;
-            }
-            
-            .duo-button {
-                left: 50%;
-            }
-            
-            .mode-controls {
-                position: absolute;
-                top: 0;
-                right: 10px;
-                margin-top: 0;
-            }
-            
-            /* Special case for sample/hold mode button on mobile */
-            #sampleHoldDemo .mode-controls {
-                position: relative;
-                left: 50%;
-                transform: translateX(-50%);
-                margin-top: 15px;
-                top: auto;
-                right: auto;
             }
             
             .mode-button {
@@ -615,29 +526,16 @@
             }
         }
         
-        @media (max-width: 350px) {
+        @media (max-width: 400px) {
             .controls {
-                height: auto;
-                display: flex;
-                flex-direction: column;
+                flex-wrap: wrap;
                 gap: 10px;
-                padding: 0 20px;
+                justify-content: center;
             }
             
             .button {
-                position: static !important;
-                transform: none !important;
-                width: 100%;
-                max-width: 200px;
-                margin: 0 auto;
-            }
-            
-            .mode-controls {
-                position: static !important;
-                margin-top: 10px;
-                width: 100%;
-                display: flex;
-                justify-content: center;
+                flex: 0 1 calc(50% - 10px);
+                min-width: 120px;
             }
             
             .labels {
@@ -847,11 +745,8 @@
                 </div>
                 
                 <div class="controls" id="controlsContainer">
-                    <button class="button smpl-button" id="trigButton">SMPL</button>
-                    <button class="button track-button" id="trackButton">TRACK</button>
-                </div>
-                
-                <div class="mode-controls">
+                    <button class="button" id="trigButton">SMPL</button>
+                    <button class="button" id="trackButton">TRACK</button>
                     <button class="button mode-button" id="modeButton">Duo. Mode</button>
                 </div>
             </div>
@@ -933,10 +828,8 @@
                 </div>
                 
                 <div class="controls" id="ffControlsContainer">
-                    <button class="button smpl-button" id="ffTrigButton" style="left: 50%; transform: translateX(-50%);">TRIG</button>
-                    <div class="mode-controls">
-                        <button class="button mode-button" id="ffModeButton">Comp. Mode</button>
-                    </div>
+                    <button class="button" id="ffTrigButton">TRIG</button>
+                    <button class="button mode-button" id="ffModeButton">Comp. Mode</button>
                 </div>
             </div>
         </div>
@@ -1313,7 +1206,6 @@
                     currentMode = 'duo';
                     popupMode = 'duo';
                     pageTitle.textContent = 'Duophonic Sample and Hold Demonstration';
-                    modeButton.textContent = 'Single Mode';
                     
                     labelContainer.innerHTML = `
                         <div class="label-input">input</div>
@@ -1324,9 +1216,12 @@
                     `;
                     labelContainer.classList.add('five-labels');
                     
+                    // Clear and rebuild controls for duo mode
                     controlsContainer.innerHTML = `
                         <button class="button duo-button" id="duoButton">DUO</button>
+                        <button class="button mode-button" id="singleModeButton">Single Mode</button>
                     `;
+                    controlsContainer.classList.add('duo-mode');
                     
                     const duoButton = document.getElementById('duoButton');
                     
@@ -1360,6 +1255,14 @@
                     
                     currentEventListeners.duoButton = duoHandler;
                     
+                    // Set up single mode button handler
+                    const singleModeButton = document.getElementById('singleModeButton');
+                    singleModeButton.addEventListener('click', switchMode);
+                    singleModeButton.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        switchMode();
+                    });
+                    
                     if (!hasSeenDuoPopup) {
                         showPopup();
                     }
@@ -1368,7 +1271,6 @@
                     currentMode = 'single';
                     popupMode = 'single';
                     pageTitle.textContent = 'Sample/Track and Hold Demonstration';
-                    modeButton.textContent = 'Duo. Mode';
                     
                     labelContainer.innerHTML = `
                         <div class="label-input">input</div>
@@ -1377,10 +1279,13 @@
                     `;
                     labelContainer.classList.remove('five-labels');
                     
+                    // Clear and rebuild controls for single mode
                     controlsContainer.innerHTML = `
-                        <button class="button smpl-button" id="trigButton">SMPL</button>
-                        <button class="button track-button" id="trackButton">TRACK</button>
+                        <button class="button" id="trigButton">SMPL</button>
+                        <button class="button" id="trackButton">TRACK</button>
+                        <button class="button mode-button" id="modeButton">Duo. Mode</button>
                     `;
+                    controlsContainer.classList.remove('duo-mode');
                     
                     const newTrigButton = document.getElementById('trigButton');
                     const newTrackButton = document.getElementById('trackButton');
@@ -1441,6 +1346,14 @@
                     document.addEventListener('mouseup', currentEventListeners.trackMouseUp);
                     document.addEventListener('touchend', currentEventListeners.trackTouchEnd);
                     document.addEventListener('mouseleave', currentEventListeners.trackMouseLeave);
+                    
+                    // Set up mode button handler
+                    const modeBtn = document.getElementById('modeButton');
+                    modeBtn.addEventListener('click', switchMode);
+                    modeBtn.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        switchMode();
+                    });
                 }
             }
             
