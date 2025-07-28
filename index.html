@@ -195,9 +195,10 @@
             justify-content: center;
             align-items: center;
             min-height: 60px;
-            gap: 15px;
+            gap: 75px;
             padding: 0 20px;
             box-sizing: border-box;
+            translate: +7.5%
         }
 
         .button {
@@ -301,7 +302,7 @@
         /* Full Wave Rectifier Specific Styles */
         .slider-container {
             position: absolute;
-            right: -60px;
+            right: -75px;
             top: 50%;
             transform: translateY(-50%);
             height: 300px;
@@ -358,6 +359,7 @@
             user-select: none;
             -webkit-touch-callout: none;
             -webkit-tap-highlight-color: transparent;
+            translate: 33%
         }
 
         .waveform-button:hover {
@@ -421,11 +423,21 @@
         .slider-label.top {
             top: -25px;
         }
-        
+
+        .slider-label.center {
+            top: 50%;
+            transform: translateX(-50%) translateY(-50%) rotate(-90deg);
+            transform-origin: center;
+            bottom: auto;
+            }
         .slider-label.bottom {
             bottom: -25px;
+            translate: -50%
         }
-
+ .slider-label.bottom2 {
+            bottom: -25px;
+            
+        }
         /* Responsive design */
         @media (max-width: 900px) {
             body {
@@ -767,8 +779,8 @@
                 </div>
                 
                 <div class="controls" id="controlsContainer">
-                    <button class="button" id="trigButton">SMPL</button>
-                    <button class="button" id="trackButton">TRACK</button>
+                    <button class="button" id="trigButton">smpl</button>
+                    <button class="button" id="trackButton">track</button>
                     <button class="button mode-button" id="modeButton">Duo. Mode</button>
                 </div>
             </div>
@@ -834,14 +846,15 @@
                         
                         <!-- Sliders for comparator mode -->
                         <div class="slider-container" id="ffThreshSlider" style="display: none;">
-                            <div class="slider-label bottom">thresh</div>
+                            <div class="slider-label bottom">th.</div>
                             <div class="slider-track">
                                 <div class="slider-thumb" id="threshThumb" style="top: 50%;"></div>
                             </div>
                         </div>
                         
-                        <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -110px;">
-                            <div class="slider-label top">offset</div>
+                        <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -125px;">
+                            <div class="slider-label bottom2">offset</div>
+
                             <div class="slider-track">
                                 <div class="slider-thumb" id="offsetThumb" style="top: 50%;"></div>
                             </div>
@@ -1239,7 +1252,7 @@
                     
                     // Clear and rebuild controls for duo mode
                     controlsContainer.innerHTML = `
-                        <button class="button duo-button" id="duoButton">DUO</button>
+                        <button class="button duo-button" id="duoButton">duo</button>
                         <button class="button mode-button" id="singleModeButton">Single Mode</button>
                     `;
                     controlsContainer.classList.add('duo-mode');
@@ -1301,8 +1314,8 @@
                     
                     // Clear and rebuild controls for single mode
                     controlsContainer.innerHTML = `
-                        <button class="button" id="trigButton">SMPL</button>
-                        <button class="button" id="trackButton">TRACK</button>
+                        <button class="button" id="trigButton">smpl</button>
+                        <button class="button" id="trackButton">track</button>
                         <button class="button mode-button" id="modeButton">Duo. Mode</button>
                     `;
                     controlsContainer.classList.remove('duo-mode');
