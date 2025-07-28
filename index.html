@@ -276,10 +276,29 @@
         }
 
         .mode-controls {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin-top: 0;
+        }
+        
+        /* Special case for sample/hold mode button */
+        #sampleHoldDemo .mode-controls {
             position: relative;
             left: 138px;
             transform: translateX(-50%);
             margin-top: 20px;
+            top: auto;
+            right: auto;
+        }
+        
+        .controls {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 60px;
+            margin: 0 auto;
+            margin-bottom: 20px;
         }
 
         .mode-button {
@@ -340,7 +359,7 @@
         /* Full Wave Rectifier Specific Styles */
         .slider-container {
             position: absolute;
-            right: -60px;
+            right: -80px;
             top: 50%;
             transform: translateY(-50%);
             height: 300px;
@@ -412,7 +431,7 @@
         /* LED styles */
         .led-container {
             position: absolute;
-            right: -60px;
+            right: -80px;
             top: 50%;
             transform: translateY(-50%);
             display: flex;
@@ -480,11 +499,11 @@
             }
 
             .slider-container {
-                right: -50px;
+                right: -60px;
             }
 
             .led-container {
-                right: -50px;
+                right: -60px;
             }
         }
         
@@ -522,9 +541,20 @@
             }
             
             .mode-controls {
+                position: absolute;
+                top: 0;
+                right: 10px;
+                margin-top: 0;
+            }
+            
+            /* Special case for sample/hold mode button on mobile */
+            #sampleHoldDemo .mode-controls {
+                position: relative;
                 left: 50%;
                 transform: translateX(-50%);
                 margin-top: 15px;
+                top: auto;
+                right: auto;
             }
             
             .mode-button {
@@ -537,12 +567,17 @@
             }
 
             .slider-container {
-                right: -40px;
+                right: -45px;
                 height: 250px;
+                width: 35px;
+            }
+            
+            .slider-track {
+                width: 3px;
             }
 
             .led-container {
-                right: -40px;
+                right: -45px;
                 gap: 15px;
             }
 
@@ -552,8 +587,8 @@
             }
 
             .slider-thumb {
-                width: 25px;
-                height: 25px;
+                width: 22px;
+                height: 22px;
             }
 
             .waveform-button {
@@ -562,7 +597,7 @@
             }
 
             .slider-label {
-                font-size: 12px;
+                font-size: 11px;
             }
             
             .container {
@@ -588,11 +623,23 @@
             }
             
             .mode-controls {
+                position: static !important;
                 margin-top: 10px;
+                width: 100%;
+                display: flex;
+                justify-content: center;
             }
             
             .labels {
                 font-size: 11px;
+            }
+            
+            .slider-container {
+                right: -35px !important;
+            }
+            
+            .led-container {
+                right: -35px !important;
             }
         }
 
@@ -861,7 +908,7 @@
                             </div>
                         </div>
                         
-                        <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -110px;">
+                        <div class="slider-container" id="ffOffsetSlider" style="display: none; right: -130px;">
                             <div class="slider-label top">offset</div>
                             <div class="slider-track">
                                 <div class="slider-thumb" id="offsetThumb" style="top: 50%;"></div>
@@ -871,11 +918,10 @@
                 </div>
                 
                 <div class="controls" id="ffControlsContainer">
-                    <button class="button smpl-button" id="ffTrigButton">TRIG</button>
-                </div>
-                
-                <div class="mode-controls">
-                    <button class="button mode-button" id="ffModeButton">Switch to Comparator Mode</button>
+                    <button class="button smpl-button" id="ffTrigButton" style="left: 50%; transform: translateX(-50%);">TRIG</button>
+                    <div class="mode-controls">
+                        <button class="button mode-button" id="ffModeButton">Switch to Comparator Mode</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1053,8 +1099,7 @@
             // Responsive canvas sizing
             function setCanvasSize() {
                 const container = canvas.parentElement;
-                const labelWidth = 80; // Space for labels
-                const extraSpace = 120; // Space for labels + padding
+                const extraSpace = 200; // Consistent space for all demos
                 const maxWidth = Math.min(800, window.innerWidth - extraSpace);
                 const aspectRatio = 2;
                 
@@ -1785,7 +1830,7 @@
             // Responsive canvas sizing
             function setCanvasSize() {
                 const container = canvas.parentElement;
-                const extraSpace = 180; // Extra space for slider + labels
+                const extraSpace = 200; // Consistent space for all demos
                 const maxWidth = Math.min(800, window.innerWidth - extraSpace);
                 const aspectRatio = 2;
                 
@@ -1796,6 +1841,12 @@
                 const labels = document.querySelector('#fullWaveDemo .labels');
                 if (labels) {
                     labels.style.height = canvas.height + 'px';
+                }
+                
+                // Update slider height to match canvas
+                const sliderContainer = document.querySelector('#fullWaveDemo .slider-container');
+                if (sliderContainer) {
+                    sliderContainer.style.height = canvas.height + 'px';
                 }
             }
             
@@ -2060,7 +2111,7 @@
             // Responsive canvas sizing
             function setCanvasSize() {
                 const container = canvas.parentElement;
-                const extraSpace = 200; // Extra space for LEDs/sliders + labels
+                const extraSpace = 200; // Consistent space for all demos
                 const maxWidth = Math.min(800, window.innerWidth - extraSpace);
                 const aspectRatio = 2;
                 
@@ -2072,6 +2123,12 @@
                 if (labels) {
                     labels.style.height = canvas.height + 'px';
                 }
+                
+                // Update slider heights to match canvas
+                const sliders = document.querySelectorAll('#flipFlopDemo .slider-container');
+                sliders.forEach(slider => {
+                    slider.style.height = canvas.height + 'px';
+                });
             }
             
             setCanvasSize();
